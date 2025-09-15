@@ -7,7 +7,6 @@ from datetime import datetime
 import sys
 sys.path.append('/opt/.manus/.sandbox-runtime')
 from src.lme_data_provider import LMEDataProvider
-from src.supplier_finder import SupplierFinder
 
 layla_bp = Blueprint('layla', __name__)
 
@@ -19,7 +18,6 @@ client = openai.OpenAI(
 
 # Initialize LME data provider for accurate pricing
 lme_provider = LMEDataProvider()
-supplier_finder = SupplierFinder()
 
 class LaylaAgent:
     def __init__(self):
@@ -107,15 +105,6 @@ Remember: You are not just an assistant - you are a trusted trading partner who 
         except Exception as e:
             return {"error": f"Failed to fetch LME market data: {str(e)}"}
 
-
-    def find_suppliers(self, metal, region="UAE", supplier_type="all"):
-        """Find actual suppliers for the specified metal"""
-        try:
-            suppliers = supplier_finder.find_metal_suppliers(metal, region, supplier_type)
-            return suppliers
-        except Exception as e:
-            return {"error": f"Failed to find suppliers: {str(e)}"}
-
     def generate_response(self, user_message, conversation_history=None):
         """Generate Layla's response using OpenAI"""
         try:
@@ -137,7 +126,7 @@ Remember: You are not just an assistant - you are a trusted trading partner who 
             
             # Generate response using OpenAI
             response = client.chat.completions.create(
-                model="gpt-4o-mini",
+                model="gemini-2.5-flash",
                 messages=messages,
                 max_tokens=1000,
                 temperature=0.7
@@ -419,10 +408,3 @@ def get_trading_recommendation():
         return jsonify({"error": str(e)}), 500
 
 
-cat >> src/routes/layla.py << 'EOF'
-
-# Add this note about prices in Layla's responses
-PRICE_DISCLAIMER = "\n\n*Note: Prices shown are indicative market data. For official LME prices and trading, please consult official LME sources or your broker.*"
-
-# Add this note about prices in Layla's responses
-PRICE_DISCLAIMER = "\n\n*Note: Prices shown are indicative market data. For official LME prices and trading, please consult official LME sources or your broker.*"
