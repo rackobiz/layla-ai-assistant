@@ -1,6 +1,8 @@
 import os
 import sys
 from dotenv import load_dotenv
+from flask import Flask, request, jsonify, send_from_directory
+from flask_cors import CORS
 
 # Load environment variables
 load_dotenv()
@@ -8,37 +10,52 @@ load_dotenv()
 # Add src to path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'src'))
 
-# Import the Flask app
-from main import app
+# Create Flask app
+app = Flask(__name__, static_folder='src/static')
+CORS(app)
 
-# For Railway deployment
-if __name__ == '__main__':
-    port = int(os.environ.get('PORT', 5000))
-    app.run(host='0.0.0.0', port=port, debug=False)
+# Import OpenAI
+try:
+    import openai
+    openai.api_key = os.environ.get('OPENAI_API_KEY')
+    HAS_OPENAI = True
+except ImportError:
+    HAS_OPENAI = False
 
-# Add missing API endpoints
-from flask import request, jsonify
-import openai
+@app.route('/')
+def index():
+    return send_from_directory(app.static_folder, 'index.html')
 
-@app.route('/api/layla/chat', methods=['POST'] )
+@app.route('/<path:path>')
+def serve_static(path):
+    return send_from_directory(app.static_folder, path)
+
+@app.route('/api/layla/chat', methods=['POST'])
 def layla_chat():
     try:
         data = request.get_json()
         message = data.get('message', '')
-        history = data.get('history', [])
         
-        messages = [{
-            "role": "system", 
-            "content": "You are Layla, an AI trading assistant for Sharif Metals Group specializing in non-ferrous metals trading. You help with market analysis, supplier recommendations, and trading strategies across UAE, GCC, India, China, and European markets."
-        }]
+        if not HAS_OPENAI or not openai.api_key:
+            return jsonify({
+                "response": "Hello! I'm Layla, your AI trading assistant. I'm currently experiencing technical difficulties with my AI connection, but I'm here to help with metals trading questions. Please try again later or contact support.",
+                "status": "success"
+            })
         
-        messages.extend(history[-10:])
-        messages.append({"role": "user", "content": message})
+        # Create messages for OpenAI
+        messages = [
+            {
+                "role": "system", 
+                "content": "You are Layla, an AI trading assistant for Sharif Metals Group specializing in non-ferrous metals trading. You help with market analysis, supplier recommendations, and trading strategies across UAE, GCC, India, China, and European markets. Keep responses concise and professional."
+            },
+            {"role": "user", "content": message}
+        ]
         
+        # Call OpenAI API
         response = openai.ChatCompletion.create(
-            model="gpt-4",
+            model="gpt-3.5-turbo",
             messages=messages,
-            max_tokens=500,
+            max_tokens=300,
             temperature=0.7
         )
         
@@ -48,7 +65,10 @@ def layla_chat():
         })
         
     except Exception as e:
-        return jsonify({"error": str(e), "status": "error"}), 500
+        return jsonify({
+            "response": "I apologize, but I'm experiencing technical difficulties. Please try again in a moment. If the issue persists, please contact our technical support team.",
+            "status": "error"
+        })
 
 @app.route('/api/layla/market-data', methods=['GET'])
 def market_data():
@@ -60,3 +80,11 @@ def market_data():
             "lead": {"price_usd_per_tonne": 2050, "change_percent": 1.2}
         }
     })
+
+@app.route('/health', methods=['GET'])
+def health_check():
+    return jsonify({"status": "healthy", "openai": HAS_OPENAI})
+
+if __name__ == '__main__':
+    port = int(os.environ.get('PORT', 5000))
+    app.run(host='0.0.0.0', port=port, debug=False)
