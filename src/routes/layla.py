@@ -126,7 +126,7 @@ Remember: You are not just an assistant - you are a trusted trading partner who 
             
             # Generate response using OpenAI
             response = client.chat.completions.create(
-                model="gemini-2.5-flash",
+                model="gpt-4o-mini",
                 messages=messages,
                 max_tokens=1000,
                 temperature=0.7
@@ -416,3 +416,4 @@ def health_check():
         'timestamp': datetime.now().isoformat(),
         'api_key_configured': bool(os.getenv('OPENAI_API_KEY'))
     })
+# Updated Mon Sep 15 18:55:04 +04 2025
