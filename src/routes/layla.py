@@ -111,3 +111,13 @@ def get_market_data():
         return jsonify(prices)
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
+# Add API prefix route for frontend compatibility
+@layla_bp.route('/api/market-data', methods=['GET'])
+@cross_origin()
+def get_api_market_data():
+    try:
+        prices = layla_agent.get_current_lme_prices()
+        return jsonify(prices)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
