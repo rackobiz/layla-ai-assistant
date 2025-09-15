@@ -34,7 +34,6 @@
         .send-button { background: linear-gradient(135deg, #3b82f6, #1d4ed8); border: none; border-radius: 12px; width: 44px; height: 44px; color: white; cursor: pointer; }
         .sidebar { width: 300px; background: rgba(30, 41, 59, 0.8); border-radius: 16px; padding: 25px; }
         .sidebar h3 { font-size: 16px; font-weight: 600; margin-bottom: 15px; color: #f8fafc; }
-        .market-data { margin-bottom: 25px; }
         .metal-price { background: rgba(255, 255, 255, 0.1); border-radius: 8px; padding: 12px; margin-bottom: 10px; border-left: 3px solid #2196F3; }
         .metal-name { font-weight: bold; font-size: 14px; color: #2196F3; margin-bottom: 4px; }
         .metal-price-value { font-size: 18px; font-weight: bold; color: #fff; margin-bottom: 2px; }
@@ -66,13 +65,11 @@
         <main class="chat-container">
             <div class="chat-header">
                 <h2>Chat with Layla</h2>
-                <p>Your AI trading assistant is ready to help with market analysis, supplier recommendations, and trading strategies.</p>
             </div>
             
             <div class="chat-messages" id="chat-messages">
                 <div class="message layla">
                     <div class="message-content">
-                        Hello! I'm Layla, your dedicated non-ferrous metals trading assistant for Sharif Metals Group. I'm here to help you with market analysis, supplier identification, trading recommendations, and strategic insights. How can I assist you today?
                     </div>
                     <div class="message-time">Just now</div>
                 </div>
@@ -80,23 +77,17 @@
 
             <div class="chat-input-container">
                 <div class="chat-input-wrapper">
-                    <textarea id="chat-input" class="chat-input" placeholder="Ask Layla about market trends, supplier opportunities, or trading strategies..." rows="1"></textarea>
                     <button id="send-button" class="send-button" onclick="sendMessage()">→</button>
                 </div>
             </div>
         </main>
 
         <aside class="sidebar">
-            <div class="market-data">
-                <h3>📊 Live LME Prices</h3>
-                <div id="market-data">Loading market data...</div>
             </div>
 
             <div class="quick-actions">
                 <h3>⚡ Quick Actions</h3>
-                <div class="quick-action" onclick="sendQuickMessage('Give me a comprehensive market analysis for today')">📊 Market Analysis</div>
                 <div class="quick-action" onclick="sendQuickMessage('Find me copper suppliers in the UAE')">🔍 Find Suppliers</div>
-                <div class="quick-action" onclick="sendQuickMessage('What are the current LME prices?')">💰 Current Prices</div>
             </div>
         </aside>
     </div>
@@ -144,15 +135,12 @@
         }
 
         function updateMarketData() {
-            console.log('Fetching market data...');
-            fetch('/api/market-data')
                 .then(response => {
                     console.log('Market data response status:', response.status);
                     return response.json();
                 })
                 .then(data => {
                     console.log('Market data received:', data);
-                    const marketDataDiv = document.getElementById('market-data');
                     if (data && Object.keys(data).length > 0) {
                         let html = '';
                         
@@ -177,16 +165,11 @@
                         });
                         
                         html += '<div style="font-size: 10px; color: #999; text-align: center; margin-top: 15px;">Last updated: ' + new Date().toLocaleTimeString() + '</div>';
-                        marketDataDiv.innerHTML = html;
                         console.log('Market data displayed successfully');
                     } else {
-                        console.log('No market data received');
-                        document.getElementById('market-data').innerHTML = 'No market data available';
                     }
                 })
                 .catch(error => {
-                    console.error('Error fetching market data:', error);
-                    document.getElementById('market-data').innerHTML = 'Error loading market data';
                 });
         }
 
@@ -197,36 +180,28 @@
             }
         });
 
-        // Load market data when page loads
-        console.log('Page loaded, fetching market data...');
         updateMarketData();
         
-        // Update market data every 30 seconds
         setInterval(updateMarketData, 30000);
         
         console.log('JavaScript loaded successfully');
     </script>
 </body>
 </html><script>
-function loadMarketData() {
     const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, null, false);
     let textNode, lmeContainer = null;
     
     while (textNode = walker.nextNode()) {
-        if (textNode.textContent.includes('Live LME Prices') || textNode.textContent.includes('Error loading market data')) {
             lmeContainer = textNode.parentElement;
             break;
         }
     }
     
     if (lmeContainer) {
-        lmeContainer.innerHTML = '<h3 style="color: #4CAF50;">📊 Live LME Prices</h3><p style="color: #ccc;">Loading...</p>';
         
-        fetch('/api/market-data')
             .then(response => response.json())
             .then(data => {
                 lmeContainer.innerHTML = `
-                    <h3 style="color: #4CAF50; margin-bottom: 15px;">📊 Live LME Prices</h3>
                     <div style="color: white;">
                         <div style="margin: 8px 0; padding: 8px; background: rgba(76, 175, 80, 0.1); border-left: 3px solid #4CAF50;">
                             <strong>Copper:</strong> $${data.copper.price.toLocaleString()}/tonne 
@@ -256,14 +231,11 @@ function loadMarketData() {
                 `;
             })
             .catch(error => {
-                lmeContainer.innerHTML = '<h3 style="color: #f44336;">📊 Live LME Prices</h3><p style="color: #f44336;">Error loading market data</p>';
             });
     }
 }
 
 function startMarketDataUpdates() {
-    loadMarketData();
-    setInterval(loadMarketData, 30000);
 }
 
 document.addEventListener('DOMContentLoaded', startMarketDataUpdates);
