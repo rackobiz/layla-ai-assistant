@@ -418,3 +418,13 @@ def get_trading_recommendation():
         return jsonify({"error": str(e)}), 500
 
 
+
+@layla_bp.route('/api/market-data', methods=['GET'])
+@cross_origin()
+def get_market_data_api():
+    """API endpoint to get current market data"""
+    try:
+        prices = lme_provider.get_current_prices()
+        return jsonify(prices)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
