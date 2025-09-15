@@ -105,6 +105,16 @@ Remember: You are not just an assistant - you are a trusted trading partner who 
         except Exception as e:
             return {"error": f"Failed to fetch LME market data: {str(e)}"}
 
+    
+    def get_market_data(self):
+        """Get current market data from LME provider"""
+        try:
+            prices = lme_provider.get_current_prices()
+            return prices
+        except Exception as e:
+            print(f"Error getting market data: {e}")
+            return {}
+
     def generate_response(self, user_message, conversation_history=None):
         """Generate Layla's response using OpenAI"""
         try:
