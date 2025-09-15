@@ -36,12 +36,6 @@ def layla_chat():
         data = request.get_json()
         message = data.get('message', '')
         
-        if not HAS_OPENAI or not openai.api_key:
-            return jsonify({
-                "response": "Hello! I'm Layla, your AI trading assistant. I'm currently experiencing technical difficulties with my AI connection, but I'm here to help with metals trading questions. Please try again later or contact support.",
-                "status": "success"
-            })
-        
         # Create messages for OpenAI
         messages = [
             {
@@ -51,8 +45,9 @@ def layla_chat():
             {"role": "user", "content": message}
         ]
         
-        # Call OpenAI API
-        response = openai.ChatCompletion.create(
+        # Call OpenAI API with correct method
+        client = openai.OpenAI(api_key=os.environ.get('OPENAI_API_KEY'))
+        response = client.chat.completions.create(
             model="gpt-3.5-turbo",
             messages=messages,
             max_tokens=300,
@@ -66,7 +61,7 @@ def layla_chat():
         
     except Exception as e:
         return jsonify({
-            "response": "I apologize, but I'm experiencing technical difficulties. Please try again in a moment. If the issue persists, please contact our technical support team.",
+            "response": f"I apologize, but I'm experiencing technical difficulties: {str(e)}. Please try again in a moment.",
             "status": "error"
         })
 
