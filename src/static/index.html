@@ -1,109 +1,6 @@
- .quick-action, .send-button {
-                min-height: 44px; /* iOS recommended touch target */
-            }
-            
-            .metal-price {
-                min-height: 44px;
-                display: flex;
-                align-items: center;
-            }
-            
-            .chat-input {
-                min-height: 44px;
-            }
-        }
-    </style>
-</head>
-<body>
-    <header class="header">
-        <div class="logo-section">
-            <div class="logo">SMG</div>
-            <div class="company-info">
-                <h1>Layla AI Trading Assistant</h1>
-                <p>Sharif Metals Group - Non-ferrous Metals Trading</p>
-            </div>
-        </div>
-        <div class="status-indicator">
-            <div class="status-dot"></div>
-            <span>Online & Ready</span>
-        </div>
-    </header>
-
-    <div class="main-container">
-        <main class="chat-container">
-            <div class="chat-header">
-                <h2>Chat with Layla</h2>
-                <p>Your AI trading assistant is ready to help with market analysis, supplier recommendations, and trading strategies.</p>
-            </div>
-            
-            <div class="chat-messages" id="chat-messages">
-                <div class="message layla">
-                    <div class="message-content">
-                        Hello! I'm Layla, your dedicated non-ferrous metals trading assistant for Sharif Metals Group. I'm here to help you with market analysis, supplier identification, trading recommendations, and strategic insights. 
-                        
-                        I'm currently monitoring live LME prices and tracking opportunities across UAE, GCC, India, China, and European markets. How can I assist you today?
-                    </div>
-                    <div class="message-time">Just now</div>
-                </div>
-            </div>
-
-            <div class="chat-input-container">
-                <div class="chat-input-wrapper">
-                    <textarea 
-                        id="chat-input" 
-                        class="chat-input" 
-                        placeholder="Ask Layla about market trends, supplier opportunities, or trading strategies..."
-                        rows="1"
-                    ></textarea>
-                    <button id="send-button" class="send-button">
-                        <i class="fas fa-paper-plane"></i>
-                    </button>
-                </div>
-            </div>
-        </main>
-
-        <aside class="sidebar">
-            <div class="market-data">
-                <h3><i class="fas fa-chart-line"></i> Live Market Data</h3>
-                <div id="market-prices">
-                    <div class="metal-price">
-                        <span class="metal-name">Loading...</span>
-                        <div class="price-info">
-                            <div class="price">Fetching prices...</div>
-                            <div class="change">--</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="quick-actions">
-                <h3><i class="fas fa-bolt"></i> Quick Actions</h3>
-                <button class="quick-action" onclick="askLayla('What are the current market trends for copper?')">
-                    <i class="fas fa-chart-line"></i> Market Analysis
-                </button>
-                <button class="quick-action" onclick="askLayla('Find me new suppliers for aluminum scrap')">
-                    <i class="fas fa-search"></i> Find Suppliers
-                </button>
-                <button class="quick-action" onclick="askLayla('What if copper prices drop by $200/ton?')">
-                    <i class="fas fa-calculator"></i> Scenario Analysis
-                </button>
-                <button class="quick-action" onclick="askLayla('Show me arbitrage opportunities')">
-                    <i class="fas fa-exchange-alt"></i> Arbitrage Opportunities
-                </button>
-            </div>
-        </aside>
-    </div>
-
-    <script>
-        let conversationHistory = [];
-
-        // Auto-resize textarea
-        const chatInput = document.getElementById('chat-input');
-        chatInput.addEventListener('input', function() {
-            this.style.height = 'auto';
-            this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+ubuntu@sandbox:~ $ source /home/ubuntu/.user_env && cd /home/ubuntu && echo '```html'; cat professional_layla_fix.html; echo '```'
+[previous content truncated]...is.scrollHeight, 120) + 'px';
         });
-
         // Send message on Enter (but allow Shift+Enter for new lines)
         chatInput.addEventListener('keydown', function(e) {
             if (e.key === 'Enter' && !e.shiftKey) {
@@ -111,31 +8,24 @@
                 sendMessage();
             }
         });
-
         // Send button click
         document.getElementById('send-button').addEventListener('click', sendMessage);
-
         function askLayla(message) {
             chatInput.value = message;
             sendMessage();
         }
-
         async function sendMessage() {
             const message = chatInput.value.trim();
             if (!message) return;
-
             // Clear input and disable send button
             chatInput.value = '';
             chatInput.style.height = 'auto';
             const sendButton = document.getElementById('send-button');
             sendButton.disabled = true;
-
             // Add user message to chat
             addMessage(message, 'user');
-
             // Show loading indicator
             const loadingId = addLoadingMessage();
-
             try {
                 // Send message to Layla API
                 const response = await fetch('/api/layla/chat', {
@@ -148,12 +38,9 @@
                         history: conversationHistory
                     })
                 });
-
                 const data = await response.json();
-
                 // Remove loading indicator
                 removeLoadingMessage(loadingId);
-
                 if (response.ok) {
                     // Add Layla's response
                     addMessage(data.response, 'layla');
@@ -175,12 +62,10 @@
                 removeLoadingMessage(loadingId);
                 addMessage('I apologize, but I\'m having trouble connecting right now. Please try again in a moment.', 'layla');
             }
-
             // Re-enable send button
             sendButton.disabled = false;
             chatInput.focus();
         }
-
         function addMessage(content, sender) {
             const messagesContainer = document.getElementById('chat-messages');
             const messageDiv = document.createElement('div');
@@ -197,7 +82,6 @@
             messagesContainer.appendChild(messageDiv);
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
         }
-
         function addLoadingMessage() {
             const messagesContainer = document.getElementById('chat-messages');
             const loadingDiv = document.createElement('div');
@@ -223,117 +107,12 @@
             
             return loadingId;
         }
-
         function removeLoadingMessage(loadingId) {
             const loadingElement = document.getElementById(loadingId);
             if (loadingElement) {
                 loadingElement.remove();
             }
         }
-
-        // FIXED MARKET DATA FUNCTION
-        async function updateMarketData() {
-            try {
-                // Try the correct API endpoint first
-                let response = await fetch('/api/layla/market-data');
-                
-                if (!response.ok) {
-                    // If that fails, try alternative endpoints
-                    response = await fetch('/api/market-data');
-                }
-                
-                if (response.ok) {
-                    const data = await response.json();
-                    console.log('Market data received:', data);
-                    
-                    const marketPricesContainer = document.getElementById('market-prices');
-                    if (!marketPricesContainer) return;
-                    
-                    // Handle different response formats
-                    let lmePrices = data.lme_prices || data;
-                    
-                    if (lmePrices && typeof lmePrices === 'object') {
-                        let html = '';
-                        const keyMetals = ['copper', 'aluminum', 'zinc', 'lead'];
-                        
-                        keyMetals.forEach(metal => {
-                            const metalData = lmePrices[metal];
-                            if (metalData && !metalData.error) {
-                                // Handle different price formats
-                                let price = metalData.price_usd_per_tonne || metalData.price || 0;
-                                let change = metalData.change_percent || metalData.change || 0;
-                                
-                                if (price > 0) {
-                                    const changeClass = change >= 0 ? 'positive' : 'negative';
-                                    const changeSign = change >= 0 ? '+' : '';
-                                    
-                                    html += `
-                                        <div class="metal-price">
-                                            <span class="metal-name">${metal.charAt(0).toUpperCase() + metal.slice(1)}</span>
-                                            <div class="price-info">
-                                                <div class="price">$${Math.round(price).toLocaleString()}/tonne</div>
-                                                <div class="change ${changeClass}">${changeSign}${change.toFixed(1)}%</div>
-                                            </div>
-                                        </div>
-                                    `;
-                                }
-                            }
-                        });
-                        
-                        if (html) {
-                            marketPricesContainer.innerHTML = html;
-                        } else {
-                            // Show mock data if API doesn't work
-                            showMockMarketData();
-                        }
-                    } else {
-                        showMockMarketData();
-                    }
-                } else {
-                    console.error('Market data API error:', response.status);
-                    showMockMarketData();
-                }
-            } catch (error) {
-                console.error('Market data update failed:', error);
-                showMockMarketData();
-            }
-        }
-
-        function showMockMarketData() {
-            const marketPricesContainer = document.getElementById('market-prices');
-            if (!marketPricesContainer) return;
-            
-            // Show realistic mock data
-            const mockData = [
-                { name: 'Copper', price: 8450, change: 2.3 },
-                { name: 'Aluminum', price: 2180, change: -0.8 },
-                { name: 'Zinc', price: 2890, change: 0.5 },
-                { name: 'Lead', price: 2050, change: 1.2 }
-            ];
-            
-            let html = '';
-            mockData.forEach(metal => {
-                const changeClass = metal.change >= 0 ? 'positive' : 'negative';
-                const changeSign = metal.change >= 0 ? '+' : '';
-                
-                html += `
-                    <div class="metal-price">
-                        <span class="metal-name">${metal.name}</span>
-                        <div class="price-info">
-                            <div class="price">$${metal.price.toLocaleString()}/tonne</div>
-                            <div class="change ${changeClass}">${changeSign}${metal.change}%</div>
-                        </div>
-                    </div>
-                `;
-            });
-            
-            marketPricesContainer.innerHTML = html;
-        }
-
-        // Load market data immediately and then every 30 seconds
-        updateMarketData();
-        setInterval(updateMarketData, 30000);
-
         // Focus on input when page loads
         window.addEventListener('load', () => {
             chatInput.focus();
@@ -341,7 +120,8 @@
     </script>
 </body>
 </html>
-
+```
+ubuntu@sandbox:~ $
 
 
 live
