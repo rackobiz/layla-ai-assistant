@@ -1,60 +1,150 @@
-ubuntu@sandbox:~ $ source /home/ubuntu/.user_env && cd /home/ubuntu && echo '```html'; cat professional_layla_fix.html; echo '```'
-[previous content truncated]...is.scrollHeight, 120) + 'px';
-        });
-        // Send message on Enter (but allow Shift+Enter for new lines)
-        chatInput.addEventListener('keydown', function(e) {
-            if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault();
-                sendMessage();
-            }
-        });
-        // Send button click
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Layla - AI Trading Assistant | Sharif Metals Group</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: linear-gradient(135deg, #1e293b 0%, #334155 100%); color: #e2e8f0; min-height: 100vh; display: flex; flex-direction: column; }
+        .header { background: rgba(30, 41, 59, 0.95); backdrop-filter: blur(10px); border-bottom: 1px solid rgba(148, 163, 184, 0.2); padding: 20px 30px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1); }
+        .logo-section { display: flex; align-items: center; gap: 15px; }
+        .logo { width: 50px; height: 50px; background: linear-gradient(135deg, #f59e0b, #d97706); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: bold; color: white; box-shadow: 0 4px 15px rgba(245, 158, 11, 0.3); }
+        .company-info h1 { font-size: 24px; font-weight: 700; color: #f8fafc; margin-bottom: 4px; }
+        .company-info p { font-size: 14px; color: #94a3b8; }
+        .status-indicator { display: flex; align-items: center; gap: 8px; background: rgba(34, 197, 94, 0.1); border: 1px solid rgba(34, 197, 94, 0.3); border-radius: 8px; padding: 8px 16px; }
+        .status-dot { width: 8px; height: 8px; background: #22c55e; border-radius: 50%; animation: pulse 2s infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+        .main-container { flex: 1; display: flex; max-width: 1200px; margin: 0 auto; width: 100%; padding: 20px; gap: 20px; }
+        .chat-container { flex: 1; background: rgba(30, 41, 59, 0.8); backdrop-filter: blur(10px); border: 1px solid rgba(148, 163, 184, 0.1); border-radius: 16px; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1); }
+        .chat-header { background: rgba(51, 65, 85, 0.8); padding: 20px 25px; border-bottom: 1px solid rgba(148, 163, 184, 0.1); }
+        .chat-header h2 { font-size: 20px; font-weight: 600; color: #f8fafc; margin-bottom: 4px; }
+        .chat-header p { font-size: 14px; color: #94a3b8; }
+        .chat-messages { flex: 1; padding: 25px; overflow-y: auto; min-height: 400px; max-height: 600px; }
+        .message { margin-bottom: 20px; animation: fadeInUp 0.3s ease; }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .message.user { text-align: right; }
+        .message.layla { text-align: left; }
+        .message-content { display: inline-block; max-width: 80%; padding: 16px 20px; border-radius: 16px; font-size: 14px; line-height: 1.6; }
+        .message.user .message-content { background: linear-gradient(135deg, #3b82f6, #1d4ed8); color: white; border-bottom-right-radius: 4px; box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3); }
+        .message.layla .message-content { background: rgba(51, 65, 85, 0.8); color: #e2e8f0; border-bottom-left-radius: 4px; border: 1px solid rgba(148, 163, 184, 0.1); }
+        .message-time { font-size: 12px; color: #64748b; margin-top: 4px; }
+        .chat-input-container { padding: 20px 25px; border-top: 1px solid rgba(148, 163, 184, 0.1); background: rgba(51, 65, 85, 0.5); }
+        .chat-input-wrapper { display: flex; gap: 12px; align-items: flex-end; }
+        .chat-input { flex: 1; background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(148, 163, 184, 0.2); border-radius: 12px; padding: 12px 16px; color: #e2e8f0; font-size: 14px; resize: none; min-height: 44px; max-height: 120px; transition: all 0.3s ease; font-family: inherit; }
+        .chat-input:focus { outline: none; border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1); }
+        .chat-input::placeholder { color: #64748b; }
+        .send-button { background: linear-gradient(135deg, #3b82f6, #1d4ed8); border: none; border-radius: 12px; width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; color: white; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3); }
+        .send-button:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(59, 130, 246, 0.4); }
+        .send-button:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+        .sidebar { width: 300px; background: rgba(30, 41, 59, 0.8); backdrop-filter: blur(10px); border: 1px solid rgba(148, 163, 184, 0.1); border-radius: 16px; padding: 25px; overflow-y: auto; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1); }
+        .sidebar h3 { font-size: 16px; font-weight: 600; margin-bottom: 15px; color: #f8fafc; display: flex; align-items: center; gap: 8px; }
+        .market-data { margin-bottom: 25px; }
+        .metal-price { display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; background: rgba(51, 65, 85, 0.5); border-radius: 8px; margin-bottom: 8px; transition: all 0.3s ease; min-height: 44px; }
+        .metal-price:hover { background: rgba(51, 65, 85, 0.8); transform: translateX(4px); }
+        .metal-name { font-weight: 500; color: #e2e8f0; }
+        .price-info { text-align: right; }
+        .price { font-weight: 600; color: #f8fafc; font-size: 14px; }
+        .change { font-size: 12px; font-weight: 500; }
+        .change.positive { color: #22c55e; }
+        .change.negative { color: #ef4444; }
+        .quick-actions { display: flex; flex-direction: column; gap: 8px; }
+        .quick-action { background: rgba(51, 65, 85, 0.6); border: 1px solid rgba(148, 163, 184, 0.2); border-radius: 8px; padding: 12px 16px; color: #e2e8f0; cursor: pointer; transition: all 0.3s ease; font-size: 14px; display: flex; align-items: center; gap: 8px; min-height: 44px; }
+        .quick-action:hover { background: rgba(51, 65, 85, 0.9); border-color: #3b82f6; transform: translateY(-1px); }
+        .loading { display: flex; align-items: center; gap: 8px; color: #94a3b8; font-size: 14px; }
+        .loading-dots { display: flex; gap: 4px; }
+        .loading-dot { width: 6px; height: 6px; background: #94a3b8; border-radius: 50%; animation: loadingDots 1.4s infinite ease-in-out; }
+        .loading-dot:nth-child(1) { animation-delay: -0.32s; }
+        .loading-dot:nth-child(2) { animation-delay: -0.16s; }
+        @keyframes loadingDots { 0%, 80%, 100% { transform: scale(0); } 40% { transform: scale(1); } }
+        @media (max-width: 768px) { .main-container { flex-direction: column; padding: 10px; gap: 15px; } .sidebar { width: 100%; order: -1; padding: 20px; } .header { padding: 15px 20px; flex-direction: column; gap: 10px; text-align: center; } .logo-section { gap: 10px; justify-content: center; } .company-info h1 { font-size: 18px; } .company-info p { font-size: 12px; } .chat-messages { min-height: 300px; max-height: 400px; padding: 15px; } .message-content { max-width: 90%; padding: 12px 16px; font-size: 13px; } .chat-input { font-size: 16px; padding: 14px 16px; } .send-button { width: 48px; height: 48px; } .metal-price { padding: 10px 12px; margin-bottom: 6px; } .metal-name { font-size: 14px; } .price { font-size: 13px; } .change { font-size: 11px; } .quick-action { padding: 10px 12px; font-size: 13px; } }
+        @media (max-width: 480px) { .header { padding: 10px 15px; } .company-info h1 { font-size: 16px; } .main-container { padding: 5px; gap: 10px; } .chat-container, .sidebar { border-radius: 12px; } .chat-messages { padding: 10px; min-height: 250px; } .message-content { max-width: 95%; padding: 10px 14px; font-size: 12px; } .sidebar { padding: 15px; } .sidebar h3 { font-size: 14px; margin-bottom: 12px; } }
+        @media (hover: none) and (pointer: coarse) { .quick-action, .send-button { min-height: 44px; } .metal-price { min-height: 44px; display: flex; align-items: center; } .chat-input { min-height: 44px; } }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="logo-section">
+            <div class="logo">SMG</div>
+            <div class="company-info">
+                <h1>Layla AI Trading Assistant</h1>
+                <p>Sharif Metals Group - Non-ferrous Metals Trading</p>
+            </div>
+        </div>
+        <div class="status-indicator">
+            <div class="status-dot"></div>
+            <span>Online & Ready</span>
+        </div>
+    </header>
+    <div class="main-container">
+        <main class="chat-container">
+            <div class="chat-header">
+                <h2>Chat with Layla</h2>
+                <p>Your AI trading assistant is ready to help with market analysis, supplier recommendations, and trading strategies.</p>
+            </div>
+            <div class="chat-messages" id="chat-messages">
+                <div class="message layla">
+                    <div class="message-content">Hello! I'm Layla, your dedicated non-ferrous metals trading assistant for Sharif Metals Group. I'm here to help you with market analysis, supplier identification, trading recommendations, and strategic insights. I'm currently monitoring live LME prices and tracking opportunities across UAE, GCC, India, China, and European markets. How can I assist you today?</div>
+                    <div class="message-time">Just now</div>
+                </div>
+            </div>
+            <div class="chat-input-container">
+                <div class="chat-input-wrapper">
+                    <textarea id="chat-input" class="chat-input" placeholder="Ask Layla about market trends, supplier opportunities, or trading strategies..." rows="1"></textarea>
+                    <button id="send-button" class="send-button"><i class="fas fa-paper-plane"></i></button>
+                </div>
+            </div>
+        </main>
+        <aside class="sidebar">
+            <div class="market-data">
+                <h3><i class="fas fa-chart-line"></i> Live Market Data</h3>
+                <div id="market-prices">
+                    <div class="metal-price"><span class="metal-name">Copper</span><div class="price-info"><div class="price">$8,450/tonne</div><div class="change positive">+2.3%</div></div></div>
+                    <div class="metal-price"><span class="metal-name">Aluminum</span><div class="price-info"><div class="price">$2,180/tonne</div><div class="change negative">-0.8%</div></div></div>
+                    <div class="metal-price"><span class="metal-name">Zinc</span><div class="price-info"><div class="price">$2,890/tonne</div><div class="change positive">+0.5%</div></div></div>
+                    <div class="metal-price"><span class="metal-name">Lead</span><div class="price-info"><div class="price">$2,050/tonne</div><div class="change positive">+1.2%</div></div></div>
+                </div>
+            </div>
+            <div class="quick-actions">
+                <h3><i class="fas fa-bolt"></i> Quick Actions</h3>
+                <button class="quick-action" onclick="askLayla('What are the current market trends for copper?')"><i class="fas fa-chart-line"></i> Market Analysis</button>
+                <button class="quick-action" onclick="askLayla('Find me new suppliers for aluminum scrap')"><i class="fas fa-search"></i> Find Suppliers</button>
+                <button class="quick-action" onclick="askLayla('What if copper prices drop by $200/ton?')"><i class="fas fa-calculator"></i> Scenario Analysis</button>
+                <button class="quick-action" onclick="askLayla('Show me arbitrage opportunities')"><i class="fas fa-exchange-alt"></i> Arbitrage Opportunities</button>
+            </div>
+        </aside>
+    </div>
+    <script>
+        let conversationHistory = [];
+        const chatInput = document.getElementById('chat-input');
+        chatInput.addEventListener('input', function() { this.style.height = 'auto'; this.style.height = Math.min(this.scrollHeight, 120) + 'px'; });
+        chatInput.addEventListener('keydown', function(e) { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); } });
         document.getElementById('send-button').addEventListener('click', sendMessage);
-        function askLayla(message) {
-            chatInput.value = message;
-            sendMessage();
-        }
+        function askLayla(message) { chatInput.value = message; sendMessage(); }
         async function sendMessage() {
             const message = chatInput.value.trim();
             if (!message) return;
-            // Clear input and disable send button
             chatInput.value = '';
             chatInput.style.height = 'auto';
             const sendButton = document.getElementById('send-button');
             sendButton.disabled = true;
-            // Add user message to chat
             addMessage(message, 'user');
-            // Show loading indicator
             const loadingId = addLoadingMessage();
             try {
-                // Send message to Layla API
                 const response = await fetch('/api/layla/chat', {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        message: message,
-                        history: conversationHistory
-                    })
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message: message, history: conversationHistory })
                 });
                 const data = await response.json();
-                // Remove loading indicator
                 removeLoadingMessage(loadingId);
                 if (response.ok) {
-                    // Add Layla's response
                     addMessage(data.response, 'layla');
-                    
-                    // Update conversation history
-                    conversationHistory.push(
-                        { role: 'user', content: message },
-                        { role: 'assistant', content: data.response }
-                    );
-                    
-                    // Keep only last 10 exchanges to manage context length
-                    if (conversationHistory.length > 20) {
-                        conversationHistory = conversationHistory.slice(-20);
-                    }
+                    conversationHistory.push({ role: 'user', content: message }, { role: 'assistant', content: data.response });
+                    if (conversationHistory.length > 20) conversationHistory = conversationHistory.slice(-20);
                 } else {
                     addMessage('I apologize, but I encountered an error. Please try again.', 'layla');
                 }
@@ -62,7 +152,6 @@ ubuntu@sandbox:~ $ source /home/ubuntu/.user_env && cd /home/ubuntu && echo '```
                 removeLoadingMessage(loadingId);
                 addMessage('I apologize, but I\'m having trouble connecting right now. Please try again in a moment.', 'layla');
             }
-            // Re-enable send button
             sendButton.disabled = false;
             chatInput.focus();
         }
@@ -70,15 +159,9 @@ ubuntu@sandbox:~ $ source /home/ubuntu/.user_env && cd /home/ubuntu && echo '```
             const messagesContainer = document.getElementById('chat-messages');
             const messageDiv = document.createElement('div');
             messageDiv.className = `message ${sender}`;
-            
             const now = new Date();
             const timeString = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-            
-            messageDiv.innerHTML = `
-                <div class="message-content">${content}</div>
-                <div class="message-time">${timeString}</div>
-            `;
-            
+            messageDiv.innerHTML = `<div class="message-content">${content}</div><div class="message-time">${timeString}</div>`;
             messagesContainer.appendChild(messageDiv);
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
         }
@@ -88,40 +171,16 @@ ubuntu@sandbox:~ $ source /home/ubuntu/.user_env && cd /home/ubuntu && echo '```
             const loadingId = 'loading-' + Date.now();
             loadingDiv.id = loadingId;
             loadingDiv.className = 'message layla';
-            
-            loadingDiv.innerHTML = `
-                <div class="message-content">
-                    <div class="loading">
-                        <span>Layla is thinking</span>
-                        <div class="loading-dots">
-                            <div class="loading-dot"></div>
-                            <div class="loading-dot"></div>
-                            <div class="loading-dot"></div>
-                        </div>
-                    </div>
-                </div>
-            `;
-            
+            loadingDiv.innerHTML = `<div class="message-content"><div class="loading"><span>Layla is thinking</span><div class="loading-dots"><div class="loading-dot"></div><div class="loading-dot"></div><div class="loading-dot"></div></div></div></div>`;
             messagesContainer.appendChild(loadingDiv);
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
-            
             return loadingId;
         }
         function removeLoadingMessage(loadingId) {
             const loadingElement = document.getElementById(loadingId);
-            if (loadingElement) {
-                loadingElement.remove();
-            }
+            if (loadingElement) loadingElement.remove();
         }
-        // Focus on input when page loads
-        window.addEventListener('load', () => {
-            chatInput.focus();
-        });
+        window.addEventListener('load', () => { chatInput.focus(); });
     </script>
 </body>
 </html>
-```
-ubuntu@sandbox:~ $
-
-
-live
