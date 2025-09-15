@@ -18,14 +18,39 @@ class LaylaAgent:
         self.name = "Layla"
         
     def get_current_lme_prices(self):
-        """Get current LME prices"""
+        """Get current LME prices in the format the frontend expects"""
         return {
-            "copper": {"price": 10380.45, "change": 1.21, "unit": "USD/tonne"},
-            "aluminum": {"price": 2657.00, "change": 0.95, "unit": "USD/tonne"},
-            "zinc": {"price": 2890.00, "change": 0.15, "unit": "USD/tonne"},
-            "lead": {"price": 2050.00, "change": -0.32, "unit": "USD/tonne"},
-            "nickel": {"price": 17116.12, "change": 0.11, "unit": "USD/tonne"},
-            "tin": {"price": 30607.60, "change": -0.15, "unit": "USD/tonne"}
+            "copper": {
+                "price": 10380.45,
+                "change": 1.21,
+                "unit": "USD/tonne",
+                "per_pound": 4.71  # Add this for frontend compatibility
+            },
+            "aluminum": {
+                "price": 2657.00,
+                "change": 0.95,
+                "unit": "USD/tonne"
+            },
+            "zinc": {
+                "price": 2890.00,
+                "change": 0.15,
+                "unit": "USD/tonne"
+            },
+            "lead": {
+                "price": 2050.00,
+                "change": -0.32,
+                "unit": "USD/tonne"
+            },
+            "nickel": {
+                "price": 17116.12,
+                "change": 0.11,
+                "unit": "USD/tonne"
+            },
+            "tin": {
+                "price": 30607.60,
+                "change": -0.15,
+                "unit": "USD/tonne"
+            }
         }
     
     def generate_response(self, user_message: str) -> str:
@@ -112,7 +137,6 @@ def get_market_data():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-# Add API prefix route for frontend compatibility
 @layla_bp.route('/api/market-data', methods=['GET'])
 @cross_origin()
 def get_api_market_data():
