@@ -442,13 +442,3 @@ def get_market_data():
         return jsonify(prices)
     except Exception as e:
         return jsonify({"error": str(e)}), 500
-
-@layla_bp.route('/market-data', methods=['GET'])
-@cross_origin()
-def get_market_data():
-    """Get current market data for sidebar display"""
-    try:
-        prices = lme_provider.get_current_prices()
-        return jsonify(prices)
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
