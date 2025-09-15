@@ -418,3 +418,11 @@ def get_trading_recommendation():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+
+cat >> src/routes/layla.py << 'EOF'
+
+# Add this note about prices in Layla's responses
+PRICE_DISCLAIMER = "\n\n*Note: Prices shown are indicative market data. For official LME prices and trading, please consult official LME sources or your broker.*"
+
+# Add this note about prices in Layla's responses
+PRICE_DISCLAIMER = "\n\n*Note: Prices shown are indicative market data. For official LME prices and trading, please consult official LME sources or your broker.*"
