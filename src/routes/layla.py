@@ -407,3 +407,12 @@ def get_trading_recommendation():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+
+@layla_bp.route('/health', methods=['GET'])
+def health_check():
+    """Health check endpoint"""
+    return jsonify({
+        'status': 'healthy',
+        'timestamp': datetime.now().isoformat(),
+        'api_key_configured': bool(os.getenv('OPENAI_API_KEY'))
+    })
