@@ -1,1 +1,1 @@
-web: gunicorn --bind 0.0.0.0:$PORT start_layla:app
+web: python start_layla.py
