@@ -1,0 +1,766 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Layla - AI Trading Assistant | Sharif Metals Group</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .container {
+            display: flex;
+            min-height: 100vh;
+            max-width: 1400px;
+            margin: 0 auto;
+            gap: 20px;
+            padding: 20px;
+        }
+
+        /* Header */
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: rgba(30, 60, 114, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 1000;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #ff6b35, #f7931e);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 14px;
+            color: white;
+        }
+
+        .logo-text h1 {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 2px;
+        }
+
+        .logo-text p {
+            font-size: 12px;
+            opacity: 0.8;
+        }
+
+        .status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background: #4ade80;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            margin-top: 80px;
+            margin-right: 320px;
+            padding: 20px;
+        }
+
+        .chat-container {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 30px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            height: calc(100vh - 140px);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chat-header {
+            margin-bottom: 20px;
+        }
+
+        .chat-header h2 {
+            font-size: 24px;
+            margin-bottom: 8px;
+        }
+
+        .chat-header p {
+            opacity: 0.8;
+            font-size: 14px;
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            margin-bottom: 20px;
+            padding-right: 10px;
+        }
+
+        .message {
+            margin-bottom: 20px;
+            padding: 15px;
+            border-radius: 12px;
+            max-width: 85%;
+        }
+
+        .message.assistant {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .message.user {
+            background: rgba(59, 130, 246, 0.3);
+            border: 1px solid rgba(59, 130, 246, 0.5);
+            margin-left: auto;
+        }
+
+        .message-time {
+            font-size: 11px;
+            opacity: 0.6;
+            margin-top: 8px;
+        }
+
+        .thinking {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 12px 16px;
+            border-radius: 12px;
+            margin-bottom: 15px;
+            font-size: 14px;
+            opacity: 0.8;
+        }
+
+        .chat-input-container {
+            display: flex;
+            gap: 10px;
+            align-items: flex-end;
+        }
+
+        .chat-input {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 12px;
+            padding: 12px 16px;
+            color: white;
+            font-size: 14px;
+            resize: none;
+            min-height: 44px;
+            max-height: 120px;
+        }
+
+        .chat-input::placeholder {
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .chat-input:focus {
+            outline: none;
+            border-color: rgba(59, 130, 246, 0.8);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+        }
+
+        .send-button {
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+            border: none;
+            border-radius: 12px;
+            width: 44px;
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: white;
+            font-size: 18px;
+        }
+
+        .send-button:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+        }
+
+        /* Sidebar */
+        .sidebar {
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            width: 280px;
+            height: calc(100vh - 100px);
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 20px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            overflow-y: auto;
+        }
+
+        .sidebar-section {
+            margin-bottom: 30px;
+        }
+
+        .sidebar-section h3 {
+            font-size: 16px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .sidebar-section h3::before {
+            content: "📊";
+            font-size: 14px;
+        }
+
+        /* Live Market Data */
+        .market-data {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .market-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .market-item:last-child {
+            border-bottom: none;
+        }
+
+        .metal-name {
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        .price-info {
+            text-align: right;
+        }
+
+        .price {
+            font-weight: 600;
+            font-size: 14px;
+            margin-bottom: 2px;
+        }
+
+        .change {
+            font-size: 11px;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: 500;
+        }
+
+        .change.positive {
+            background: rgba(34, 197, 94, 0.2);
+            color: #4ade80;
+        }
+
+        .change.negative {
+            background: rgba(239, 68, 68, 0.2);
+            color: #f87171;
+        }
+
+        .change.neutral {
+            background: rgba(156, 163, 175, 0.2);
+            color: #9ca3af;
+        }
+
+        .last-updated {
+            font-size: 10px;
+            opacity: 0.6;
+            text-align: center;
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        /* Quick Actions */
+        .quick-actions {
+            display: grid;
+            gap: 8px;
+        }
+
+        .action-button {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            padding: 12px;
+            color: white;
+            text-decoration: none;
+            font-size: 13px;
+            transition: all 0.2s;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .action-button:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-1px);
+        }
+
+        .action-button::before {
+            font-size: 12px;
+        }
+
+        .action-button:nth-child(1)::before { content: "📈"; }
+        .action-button:nth-child(2)::before { content: "🔍"; }
+        .action-button:nth-child(3)::before { content: "📊"; }
+        .action-button:nth-child(4)::before { content: "⚡"; }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+                padding: 10px;
+                gap: 10px;
+            }
+
+            .main-content {
+                margin-right: 0;
+                margin-top: 70px;
+                padding: 10px;
+            }
+
+            .sidebar {
+                position: relative;
+                top: 0;
+                right: 0;
+                width: 100%;
+                height: auto;
+                margin-bottom: 20px;
+                order: -1;
+            }
+
+            .chat-container {
+                height: 60vh;
+                padding: 20px;
+            }
+
+            .header {
+                padding: 10px 15px;
+            }
+
+            .logo-text h1 {
+                font-size: 18px;
+            }
+
+            .logo-text p {
+                font-size: 11px;
+            }
+
+            .chat-input {
+                font-size: 16px; /* Prevent zoom on iOS */
+            }
+        }
+
+        @media (max-width: 480px) {
+            .market-item {
+                padding: 10px 0;
+            }
+
+            .metal-name {
+                font-size: 13px;
+            }
+
+            .price {
+                font-size: 13px;
+            }
+
+            .change {
+                font-size: 10px;
+            }
+
+            .action-button {
+                padding: 10px;
+                font-size: 12px;
+            }
+        }
+
+        /* Loading animation */
+        .loading {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Scrollbar styling */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.5);
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="logo">
+            <div class="logo-icon">SMG</div>
+            <div class="logo-text">
+                <h1>Layla AI Trading Assistant</h1>
+                <p>Sharif Metals Group - Non-ferrous Metals Trading</p>
+            </div>
+        </div>
+        <div class="status">
+            <div class="status-dot"></div>
+            <span>Online & Ready</span>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="main-content">
+            <div class="chat-container">
+                <div class="chat-header">
+                    <h2>Chat with Layla</h2>
+                    <p>Your AI trading assistant is ready to help with market analysis, supplier recommendations, and trading strategies.</p>
+                </div>
+                
+                <div class="chat-messages" id="chatMessages">
+                    <div class="message assistant">
+                        <div>Hello! I'm Layla, your dedicated non-ferrous metals trading assistant for Sharif Metals Group. I'm here to help you with market analysis, supplier identification, trading recommendations, and strategic insights. I'm currently monitoring live LME prices and tracking opportunities across UAE, GCC, India, China, and European markets. How can I assist you today?</div>
+                        <div class="message-time">Just now</div>
+                    </div>
+                </div>
+
+                <div class="chat-input-container">
+                    <textarea 
+                        id="chatInput" 
+                        class="chat-input" 
+                        placeholder="Ask Layla about market trends, supplier opportunities, or trading strategies..."
+                        rows="1"
+                    ></textarea>
+                    <button id="sendButton" class="send-button">➤</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="sidebar">
+            <div class="sidebar-section">
+                <h3>Live Market Data</h3>
+                <div class="market-data" id="marketData">
+                    <div class="market-item">
+                        <div class="metal-name">Copper</div>
+                        <div class="price-info">
+                            <div class="price" id="copperPrice">Loading...</div>
+                            <div class="change" id="copperChange">--</div>
+                        </div>
+                    </div>
+                    <div class="market-item">
+                        <div class="metal-name">Aluminum</div>
+                        <div class="price-info">
+                            <div class="price" id="aluminumPrice">Loading...</div>
+                            <div class="change" id="aluminumChange">--</div>
+                        </div>
+                    </div>
+                    <div class="market-item">
+                        <div class="metal-name">Zinc</div>
+                        <div class="price-info">
+                            <div class="price" id="zincPrice">Loading...</div>
+                            <div class="change" id="zincChange">--</div>
+                        </div>
+                    </div>
+                    <div class="market-item">
+                        <div class="metal-name">Lead</div>
+                        <div class="price-info">
+                            <div class="price" id="leadPrice">Loading...</div>
+                            <div class="change" id="leadChange">--</div>
+                        </div>
+                    </div>
+                    <div class="last-updated" id="lastUpdated">Loading market data...</div>
+                </div>
+            </div>
+
+            <div class="sidebar-section">
+                <h3>Quick Actions</h3>
+                <div class="quick-actions">
+                    <button class="action-button" onclick="quickAction('market')">Market Analysis</button>
+                    <button class="action-button" onclick="quickAction('suppliers')">Find Suppliers</button>
+                    <button class="action-button" onclick="quickAction('scenario')">Scenario Analysis</button>
+                    <button class="action-button" onclick="quickAction('arbitrage')">Arbitrage Opportunities</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let chatHistory = [];
+        let isLoading = false;
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            loadMarketData();
+            setupEventListeners();
+            
+            // Refresh market data every 30 seconds
+            setInterval(loadMarketData, 30000);
+        });
+
+        function setupEventListeners() {
+            const chatInput = document.getElementById('chatInput');
+            const sendButton = document.getElementById('sendButton');
+
+            // Auto-resize textarea
+            chatInput.addEventListener('input', function() {
+                this.style.height = 'auto';
+                this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+            });
+
+            // Send message on Enter (but not Shift+Enter)
+            chatInput.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    sendMessage();
+                }
+            });
+
+            sendButton.addEventListener('click', sendMessage);
+        }
+
+        async function loadMarketData() {
+            try {
+                const response = await fetch('/api/layla/market-data');
+                const data = await response.json();
+                
+                if (data.lme_prices) {
+                    updateMarketDisplay(data.lme_prices);
+                    updateLastUpdated(data.last_updated);
+                }
+            } catch (error) {
+                console.error('Error loading market data:', error);
+                // Show error state but don't break the UI
+                document.getElementById('lastUpdated').textContent = 'Error loading market data';
+            }
+        }
+
+        function updateMarketDisplay(prices) {
+            const metals = ['copper', 'aluminum', 'zinc', 'lead'];
+            
+            metals.forEach(metal => {
+                const priceData = prices[metal];
+                if (priceData) {
+                    const priceElement = document.getElementById(metal + 'Price');
+                    const changeElement = document.getElementById(metal + 'Change');
+                    
+                    if (priceElement && changeElement) {
+                        // Format price with commas
+                        const formattedPrice = '$' + priceData.price_usd_per_tonne.toLocaleString() + '/tonne';
+                        priceElement.textContent = formattedPrice;
+                        
+                        // Format change percentage
+                        const change = priceData.change_percent;
+                        const changeText = (change >= 0 ? '+' : '') + change.toFixed(1) + '%';
+                        changeElement.textContent = changeText;
+                        
+                        // Set change color class
+                        changeElement.className = 'change';
+                        if (change > 0) {
+                            changeElement.classList.add('positive');
+                        } else if (change < 0) {
+                            changeElement.classList.add('negative');
+                        } else {
+                            changeElement.classList.add('neutral');
+                        }
+                    }
+                }
+            });
+        }
+
+        function updateLastUpdated(timestamp) {
+            const lastUpdatedElement = document.getElementById('lastUpdated');
+            if (lastUpdatedElement && timestamp) {
+                const date = new Date(timestamp);
+                const timeString = date.toLocaleTimeString('en-US', { 
+                    hour12: false, 
+                    hour: '2-digit', 
+                    minute: '2-digit' 
+                });
+                lastUpdatedElement.textContent = `Last updated: ${timeString} UTC`;
+            }
+        }
+
+        async function sendMessage() {
+            if (isLoading) return;
+            
+            const chatInput = document.getElementById('chatInput');
+            const message = chatInput.value.trim();
+            
+            if (!message) return;
+            
+            // Add user message to chat
+            addMessage(message, 'user');
+            chatInput.value = '';
+            chatInput.style.height = 'auto';
+            
+            // Show thinking indicator
+            showThinking();
+            isLoading = true;
+            
+            try {
+                const response = await fetch('/api/layla/chat', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        message: message,
+                        history: chatHistory.slice(-10) // Last 10 messages for context
+                    })
+                });
+                
+                const data = await response.json();
+                
+                // Remove thinking indicator
+                hideThinking();
+                
+                if (data.response) {
+                    addMessage(data.response, 'assistant');
+                    
+                    // Update chat history
+                    chatHistory.push(
+                        { role: 'user', content: message },
+                        { role: 'assistant', content: data.response }
+                    );
+                    
+                    // Update market data if included in response
+                    if (data.market_data) {
+                        updateMarketDisplay(data.market_data);
+                    }
+                } else {
+                    addMessage('I apologize, but I encountered an error. Please try again.', 'assistant');
+                }
+            } catch (error) {
+                hideThinking();
+                addMessage('I apologize, but I\'m having trouble connecting right now. Please try again in a moment.', 'assistant');
+                console.error('Chat error:', error);
+            }
+            
+            isLoading = false;
+        }
+
+        function addMessage(content, sender) {
+            const chatMessages = document.getElementById('chatMessages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${sender}`;
+            
+            const now = new Date();
+            const timeString = now.toLocaleTimeString('en-US', { 
+                hour12: true, 
+                hour: 'numeric', 
+                minute: '2-digit' 
+            });
+            
+            messageDiv.innerHTML = `
+                <div>${content}</div>
+                <div class="message-time">${timeString}</div>
+            `;
+            
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function showThinking() {
+            const chatMessages = document.getElementById('chatMessages');
+            const thinkingDiv = document.createElement('div');
+            thinkingDiv.className = 'thinking';
+            thinkingDiv.id = 'thinking';
+            thinkingDiv.innerHTML = 'Layla is thinking <span class="loading"></span>';
+            chatMessages.appendChild(thinkingDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function hideThinking() {
+            const thinkingDiv = document.getElementById('thinking');
+            if (thinkingDiv) {
+                thinkingDiv.remove();
+            }
+        }
+
+        function quickAction(action) {
+            const actions = {
+                'market': 'Can you provide a current market analysis for copper, aluminum, zinc, and lead?',
+                'suppliers': 'Help me find reliable suppliers for non-ferrous metals in the Middle East and North Africa.',
+                'scenario': 'What are the potential market scenarios for metals prices in the next quarter?',
+                'arbitrage': 'Are there any arbitrage opportunities in the current metals market?'
+            };
+            
+            const message = actions[action];
+            if (message) {
+                document.getElementById('chatInput').value = message;
+                sendMessage();
+            }
+        }
+
+        // Handle mobile viewport changes
+        function handleViewportChange() {
+            const vh = window.innerHeight * 0.01;
+            document.documentElement.style.setProperty('--vh', `${vh}px`);
+        }
+
+        window.addEventListener('resize', handleViewportChange);
+        window.addEventListener('orientationchange', handleViewportChange);
+        handleViewportChange();
+    </script>
+</body>
+</html>
