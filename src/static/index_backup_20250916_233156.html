@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI Assistants - Sharif Metals International</title>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700&family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700&family=Playfair+Display:wght@400;700&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
     <style>
         * {
             margin: 0;
@@ -21,7 +21,7 @@
             position: relative;
         }
 
-        /* Floating particles */
+        /* Floating particles animation */
         .particles {
             position: fixed;
             top: 0;
@@ -41,10 +41,20 @@
         }
 
         @keyframes float {
-            0% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
-            10% { opacity: 0.6; }
-            90% { opacity: 0.6; }
-            100% { transform: translateY(-100px) rotate(360deg); opacity: 0; }
+            0% {
+                transform: translateY(100vh) rotate(0deg);
+                opacity: 0;
+            }
+            10% {
+                opacity: 0.6;
+            }
+            90% {
+                opacity: 0.6;
+            }
+            100% {
+                transform: translateY(-100px) rotate(360deg);
+                opacity: 0;
+            }
         }
 
         .container {
@@ -155,6 +165,12 @@
             box-shadow: 0 8px 25px rgba(52, 152, 219, 0.3);
         }
 
+        .enhanced-banner h2 {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
         /* Main content layout */
         .main-content {
             display: grid;
@@ -205,6 +221,7 @@
         }
 
         .price-value {
+            font-family: 'Roboto Mono', monospace;
             font-size: 14px;
             font-weight: 500;
         }
@@ -227,6 +244,9 @@
             font-size: 16px;
             font-weight: 600;
             margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
         .action-btn {
@@ -250,29 +270,6 @@
             background: linear-gradient(135deg, #2980B9, #1F618D);
             transform: translateY(-2px);
             box-shadow: 0 4px 15px rgba(52, 152, 219, 0.4);
-        }
-
-        /* Learning stats */
-        .learning-stats {
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 10px;
-            padding: 15px;
-            margin-top: 20px;
-            border: 1px solid rgba(255, 215, 0, 0.2);
-        }
-
-        .learning-stats h4 {
-            color: #FFD700;
-            font-size: 14px;
-            margin-bottom: 10px;
-        }
-
-        .stat-item {
-            display: flex;
-            justify-content: space-between;
-            font-size: 12px;
-            margin-bottom: 5px;
-            color: #BDC3C7;
         }
 
         /* Assistant selection */
@@ -308,6 +305,7 @@
             transition: all 0.3s ease;
             border: 2px solid transparent;
             position: relative;
+            overflow: hidden;
         }
 
         .assistant-card:hover {
@@ -553,6 +551,32 @@
             30% { transform: translateY(-10px); }
         }
 
+        /* Learning stats */
+        .learning-stats {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 20px;
+            border: 1px solid rgba(255, 215, 0, 0.2);
+        }
+
+        .learning-stats h4 {
+            color: #FFD700;
+            font-size: 14px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .stat-item {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            margin-bottom: 5px;
+            color: #BDC3C7;
+        }
+
         /* Responsive design */
         @media (max-width: 768px) {
             .main-content {
@@ -577,6 +601,10 @@
             .premium-banner h2 {
                 font-size: 24px;
             }
+
+            .enhanced-banner h2 {
+                font-size: 20px;
+            }
         }
 
         /* Scrollbar styling */
@@ -592,6 +620,10 @@
         .chat-messages::-webkit-scrollbar-thumb {
             background: rgba(255, 215, 0, 0.5);
             border-radius: 3px;
+        }
+
+        .chat-messages::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 215, 0, 0.7);
         }
     </style>
 </head>
@@ -618,7 +650,7 @@
         <!-- Premium banner -->
         <div class="premium-banner">
             <h2>🏆 Premium AI Solutions</h2>
-            <p>Powered by Sharif Metals International's 60+ years of market expertise with adaptive learning</p>
+            <p>Powered by Sharif Metals International's 60+ years of market expertise with adaptive learning technology</p>
         </div>
 
         <!-- Enhanced banner -->
@@ -637,24 +669,22 @@
                 </div>
 
                 <div class="quick-actions">
-                    <h4 id="quick-actions-title">🟡 Enhanced Trading Actions</h4>
-                    <div id="quick-actions-container">
-                        <button class="action-btn" onclick="sendQuickMessage('Advanced market analysis')">
-                            1 📊 Advanced market analysis
-                        </button>
-                        <button class="action-btn" onclick="sendQuickMessage('Find suppliers with contacts')">
-                            2 🏭 Find suppliers with contacts
-                        </button>
-                        <button class="action-btn" onclick="sendQuickMessage('Price forecasting')">
-                            3 📈 Price forecasting
-                        </button>
-                        <button class="action-btn" onclick="sendQuickMessage('Risk assessment')">
-                            4 ⚠️ Risk assessment
-                        </button>
-                        <button class="action-btn" onclick="sendQuickMessage('Trading opportunities')">
-                            5 💰 Trading opportunities
-                        </button>
-                    </div>
+                    <h4>🟡 Enhanced Trading Actions</h4>
+                    <button class="action-btn" onclick="sendQuickMessage('Advanced market analysis')">
+                        1 📊 Advanced market analysis
+                    </button>
+                    <button class="action-btn" onclick="sendQuickMessage('Find suppliers with contacts')">
+                        2 🏭 Find suppliers with contacts
+                    </button>
+                    <button class="action-btn" onclick="sendQuickMessage('Price forecasting')">
+                        3 📈 Price forecasting
+                    </button>
+                    <button class="action-btn" onclick="sendQuickMessage('Risk assessment')">
+                        4 ⚠️ Risk assessment
+                    </button>
+                    <button class="action-btn" onclick="sendQuickMessage('Trading opportunities')">
+                        5 💰 Trading opportunities
+                    </button>
                 </div>
 
                 <!-- Learning stats -->
@@ -742,6 +772,7 @@
 
     <script>
         let currentAssistant = 'layla';
+        let userSession = null;
 
         // Initialize particles
         function createParticles() {
@@ -868,31 +899,15 @@
 
         // Update quick actions based on assistant
         function updateQuickActions(type) {
-            const title = document.getElementById('quick-actions-title');
-            const container = document.getElementById('quick-actions-container');
+            const quickActions = document.querySelector('.quick-actions');
+            const actionsContainer = quickActions.querySelector('h4').nextElementSibling;
             
             if (type === 'trading') {
-                title.innerHTML = '🟡 Enhanced Trading Actions';
-                container.innerHTML = `
-                    <button class="action-btn" onclick="sendQuickMessage('Advanced market analysis')">
-                        1 📊 Advanced market analysis
-                    </button>
-                    <button class="action-btn" onclick="sendQuickMessage('Find suppliers with contacts')">
-                        2 🏭 Find suppliers with contacts
-                    </button>
-                    <button class="action-btn" onclick="sendQuickMessage('Price forecasting')">
-                        3 📈 Price forecasting
-                    </button>
-                    <button class="action-btn" onclick="sendQuickMessage('Risk assessment')">
-                        4 ⚠️ Risk assessment
-                    </button>
-                    <button class="action-btn" onclick="sendQuickMessage('Trading opportunities')">
-                        5 💰 Trading opportunities
-                    </button>
-                `;
+                quickActions.querySelector('h4').innerHTML = '🟡 Enhanced Trading Actions';
+                // Keep existing trading actions
             } else {
-                title.innerHTML = '🚢 Enhanced Logistics Actions';
-                container.innerHTML = `
+                quickActions.querySelector('h4').innerHTML = '🚢 Enhanced Logistics Actions';
+                actionsContainer.innerHTML = `
                     <button class="action-btn" onclick="sendQuickMessage('Find shipping companies')">
                         1 🚢 Find shipping companies
                     </button>
@@ -956,6 +971,11 @@
                 // Add assistant response to chat
                 addMessageToChat('assistant', data.response, data.interaction_id);
                 
+                // Store user session
+                if (data.user_session) {
+                    userSession = data.user_session;
+                }
+                
                 // Update learning stats
                 loadLearningStats();
                 
@@ -1016,7 +1036,7 @@
                     body: JSON.stringify({
                         interaction_id: interactionId,
                         score: score,
-                        assistant: currentAssistant
+                        feedback: `User rated this response ${score}/5`
                     })
                 });
                 
