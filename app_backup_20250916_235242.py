@@ -19,14 +19,11 @@ client = openai.OpenAI(
     base_url=os.getenv('OPENAI_API_BASE', 'https://api.openai.com/v1')
 )
 
-# Enhanced adaptive learning storage with conversation memory
+# Simple adaptive learning storage
 learning_data = {
     'layla': {'interactions': 0, 'total_rating': 0, 'feedback_count': 0},
     'alya': {'interactions': 0, 'total_rating': 0, 'feedback_count': 0}
 }
-
-# Conversation memory storage
-conversation_memory = {}
 
 # Market data storage
 current_market_data = {}
@@ -67,94 +64,26 @@ def format_market_data_for_ai():
     return formatted
 
 def get_adaptive_context(assistant):
-    """Get adaptive context for learning"""
+    """Get simple adaptive context"""
     data = learning_data[assistant]
     if data['feedback_count'] == 0:
-        return "No feedback data yet. Provide professional, detailed responses with proper paragraph spacing."
+        return "No feedback data yet. Provide professional, detailed responses."
     
     avg_rating = data['total_rating'] / data['feedback_count']
     if avg_rating >= 4.5:
-        return f"Previous responses highly rated ({avg_rating:.1f}/5). Continue current approach with clear formatting."
+        return f"Previous responses highly rated ({avg_rating:.1f}/5). Continue current approach."
     elif avg_rating >= 3.5:
-        return f"Good performance ({avg_rating:.1f}/5). Maintain professional standards with better readability."
+        return f"Good performance ({avg_rating:.1f}/5). Maintain professional standards."
     else:
-        return f"Improve needed ({avg_rating:.1f}/5). Be more detailed, helpful, and use better paragraph spacing."
+        return f"Improve needed ({avg_rating:.1f}/5). Be more detailed and helpful."
 
-def get_conversation_context(session_id, assistant):
-    """Get conversation context for continuity"""
-    if session_id not in conversation_memory:
-        conversation_memory[session_id] = {
-            'layla': {'messages': [], 'current_topic': None},
-            'alya': {'messages': [], 'current_topic': None}
-        }
-    
-    context = conversation_memory[session_id][assistant]
-    
-    if not context['messages']:
-        return "This is the start of a new conversation."
-    
-    # Get last few messages for context
-    recent_messages = context['messages'][-3:] if len(context['messages']) >= 3 else context['messages']
-    
-    context_str = "CONVERSATION CONTEXT:\n"
-    if context['current_topic']:
-        context_str += f"Current Topic: {context['current_topic']}\n"
-    
-    context_str += "Recent conversation:\n"
-    for msg in recent_messages:
-        role = "User" if msg['role'] == 'user' else assistant.title()
-        context_str += f"- {role}: {msg['content'][:100]}...\n"
-    
-    context_str += "\nIMPORTANT: Unless the user changes topic, continue discussing the current topic. Use proper paragraph spacing with double line breaks between paragraphs for better readability."
-    
-    return context_str
-
-def update_conversation_memory(session_id, assistant, user_message, ai_response):
-    """Update conversation memory with new messages"""
-    if session_id not in conversation_memory:
-        conversation_memory[session_id] = {
-            'layla': {'messages': [], 'current_topic': None},
-            'alya': {'messages': [], 'current_topic': None}
-        }
-    
-    context = conversation_memory[session_id][assistant]
-    
-    # Add user message
-    context['messages'].append({
-        'role': 'user',
-        'content': user_message,
-        'timestamp': datetime.now().isoformat()
-    })
-    
-    # Add AI response
-    context['messages'].append({
-        'role': 'assistant',
-        'content': ai_response,
-        'timestamp': datetime.now().isoformat()
-    })
-    
-    # Detect and update current topic
-    if any(keyword in user_message.lower() for keyword in ['copper', 'aluminum', 'zinc', 'lead', 'metal', 'price', 'lme']):
-        context['current_topic'] = 'Metal Trading & Prices'
-    elif any(keyword in user_message.lower() for keyword in ['shipping', 'vessel', 'logistics', 'freight', 'port', 'customs']):
-        context['current_topic'] = 'Shipping & Logistics'
-    elif any(keyword in user_message.lower() for keyword in ['supplier', 'company', 'contact', 'manufacturer']):
-        context['current_topic'] = 'Supplier Research'
-    
-    # Keep only last 10 messages to prevent memory bloat
-    if len(context['messages']) > 10:
-        context['messages'] = context['messages'][-10:]
-
-def get_layla_system_prompt(session_id):
+def get_layla_system_prompt():
     market_context = format_market_data_for_ai()
     adaptive_context = get_adaptive_context('layla')
-    conversation_context = get_conversation_context(session_id, 'layla')
     
     return f"""You are Layla, advanced AI trading assistant for Sharif Metals International (established 1963, 60+ years excellence).
 
 {market_context}
-
-{conversation_context}
 
 ENHANCED CAPABILITIES:
 - Advanced LME analysis using LIVE prices above
@@ -164,30 +93,15 @@ ENHANCED CAPABILITIES:
 
 ADAPTIVE LEARNING: {adaptive_context}
 
-FORMATTING REQUIREMENTS:
-- Use double line breaks between paragraphs for better readability
-- Structure responses with clear sections
-- Use bullet points when listing multiple items
-- Keep sentences concise but informative
+Always reference CURRENT LME PRICES above. Provide professional, detailed responses with specific contact information and reliability scores. Maintain Sharif Metals International's reputation for excellence."""
 
-CONVERSATION CONTINUITY:
-- Remember the current topic being discussed
-- Unless user changes topic, continue the current conversation thread
-- Reference previous context when relevant
-- No need for user to repeat background information
-
-Always reference CURRENT LME PRICES above. Provide professional, well-formatted responses with proper spacing. Maintain Sharif Metals International's reputation for excellence."""
-
-def get_alya_system_prompt(session_id):
+def get_alya_system_prompt():
     market_context = format_market_data_for_ai()
     adaptive_context = get_adaptive_context('alya')
-    conversation_context = get_conversation_context(session_id, 'alya')
     
     return f"""You are Alya, advanced AI logistics assistant for Sharif Metals International (established 1963, 60+ years excellence).
 
 {market_context}
-
-{conversation_context}
 
 ENHANCED CAPABILITIES:
 - Shipping company research with contact details
@@ -197,24 +111,12 @@ ENHANCED CAPABILITIES:
 
 ADAPTIVE LEARNING: {adaptive_context}
 
-FORMATTING REQUIREMENTS:
-- Use double line breaks between paragraphs for better readability
-- Structure responses with clear sections
-- Use bullet points when listing multiple items
-- Keep sentences concise but informative
+Provide professional logistics solutions with specific shipping company contacts, ratings, and route recommendations."""
 
-CONVERSATION CONTINUITY:
-- Remember the current topic being discussed
-- Unless user changes topic, continue the current conversation thread
-- Reference previous context when relevant
-- No need for user to repeat background information
-
-Provide professional logistics solutions with specific shipping company contacts, ratings, and route recommendations. Use proper formatting with clear paragraph spacing."""
-
-def get_ai_response(message, assistant_type, session_id):
-    """Get AI response with conversation memory and adaptive learning"""
+def get_ai_response(message, assistant_type):
+    """Get AI response with simple adaptive learning"""
     try:
-        system_prompt = get_layla_system_prompt(session_id) if assistant_type == 'layla' else get_alya_system_prompt(session_id)
+        system_prompt = get_layla_system_prompt() if assistant_type == 'layla' else get_alya_system_prompt()
         
         response = client.chat.completions.create(
             model="gpt-4.1-mini",
@@ -222,14 +124,11 @@ def get_ai_response(message, assistant_type, session_id):
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": message}
             ],
-            max_tokens=1000,
+            max_tokens=800,
             temperature=0.7
         )
         
         ai_response = response.choices[0].message.content.strip()
-        
-        # Update conversation memory
-        update_conversation_memory(session_id, assistant_type, message, ai_response)
         
         # Record interaction
         learning_data[assistant_type]['interactions'] += 1
@@ -238,7 +137,7 @@ def get_ai_response(message, assistant_type, session_id):
         return ai_response, interaction_id
         
     except Exception as e:
-        return f"I apologize for the technical difficulty. Please try again.\n\n(Error: {str(e)})", None
+        return f"I apologize for the technical difficulty. Please try again. (Error: {str(e)})", None
 
 @app.route('/')
 def index():
@@ -251,7 +150,7 @@ def index():
         <!DOCTYPE html>
         <html>
         <head>
-            <title>Sharif Metals International - Enhanced AI</title>
+            <title>Sharif Metals International - Adaptive AI</title>
             <style>
                 body { 
                     font-family: Arial, sans-serif; 
@@ -265,33 +164,31 @@ def index():
         </head>
         <body>
             <div class="logo">🏆 Sharif Metals International</div>
-            <h1>Enhanced AI Assistants with Context Memory</h1>
+            <h1>Adaptive AI Assistants</h1>
             <p>Since 1963 - Over 60 Years of Excellence</p>
-            <p>🧠 Loading enhanced adaptive learning system...</p>
+            <p>🧠 Loading adaptive learning system...</p>
         </body>
         </html>
         """
 
 @app.route('/api/layla/chat', methods=['POST'])
 def layla_chat():
-    """Layla chat endpoint with conversation memory"""
+    """Layla chat endpoint"""
     try:
         data = request.get_json()
         message = data.get('message', '').strip()
-        session_id = data.get('session_id', 'default')
         
         if not message:
             return jsonify({'error': 'Message required'}), 400
         
-        response, interaction_id = get_ai_response(message, 'layla', session_id)
+        response, interaction_id = get_ai_response(message, 'layla')
         
         return jsonify({
             'response': response,
             'assistant': 'layla',
             'timestamp': datetime.now().isoformat(),
             'interaction_id': interaction_id,
-            'adaptive_learning': True,
-            'conversation_memory': True
+            'adaptive_learning': True
         })
         
     except Exception as e:
@@ -299,24 +196,22 @@ def layla_chat():
 
 @app.route('/api/alya/chat', methods=['POST'])
 def alya_chat():
-    """Alya chat endpoint with conversation memory"""
+    """Alya chat endpoint"""
     try:
         data = request.get_json()
         message = data.get('message', '').strip()
-        session_id = data.get('session_id', 'default')
         
         if not message:
             return jsonify({'error': 'Message required'}), 400
         
-        response, interaction_id = get_ai_response(message, 'alya', session_id)
+        response, interaction_id = get_ai_response(message, 'alya')
         
         return jsonify({
             'response': response,
             'assistant': 'alya',
             'timestamp': datetime.now().isoformat(),
             'interaction_id': interaction_id,
-            'adaptive_learning': True,
-            'conversation_memory': True
+            'adaptive_learning': True
         })
         
     except Exception as e:
@@ -360,8 +255,7 @@ def learning_stats(assistant):
                 'total_interactions': data['interactions'],
                 'feedback_count': data['feedback_count'],
                 'average_feedback_score': avg_rating,
-                'learning_active': True,
-                'conversation_memory': True
+                'learning_active': True
             },
             'timestamp': datetime.now().isoformat()
         })
@@ -380,8 +274,7 @@ def market_data():
             'source': 'Sharif Metals International - Live LME Feed',
             'heritage': 'Since 1963 - Over 60 Years of Excellence',
             'metals': {},
-            'adaptive_learning': True,
-            'conversation_memory': True
+            'adaptive_learning': True
         }
         
         for metal, data in market_data.items():
@@ -410,8 +303,7 @@ def market_data():
                 'zinc': {'price': 2959.32, 'change': 0.1, 'currency': 'USD/t', 'color': '#4682B4'},
                 'lead': {'price': 2132.40, 'change': 0.7, 'currency': 'USD/t', 'color': '#555555'}
             },
-            'adaptive_learning': True,
-            'conversation_memory': True
+            'adaptive_learning': True
         })
 
 @app.route('/health')
@@ -422,11 +314,10 @@ def health_check():
         'company': 'Sharif Metals International',
         'heritage': 'Since 1963',
         'assistants': {
-            'layla': 'Enhanced Trading Assistant - Online with Adaptive Learning & Context Memory',
-            'alya': 'Enhanced Logistics Assistant - Online with Adaptive Learning & Context Memory'
+            'layla': 'Enhanced Trading Assistant - Online with Adaptive Learning',
+            'alya': 'Enhanced Logistics Assistant - Online with Adaptive Learning'
         },
         'adaptive_learning': 'Active',
-        'conversation_memory': 'Active',
         'timestamp': datetime.now().isoformat()
     })
 

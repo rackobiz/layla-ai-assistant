@@ -434,35 +434,16 @@
         }
 
         .message-content {
-            line-height: 1.8;
-            margin-bottom: 10px;
-        }
-
-        /* Enhanced formatting for AI responses */
-        .message-content p {
-            margin-bottom: 15px;
-        }
-
-        .message-content ul, .message-content ol {
-            margin: 15px 0;
-            padding-left: 20px;
-        }
-
-        .message-content li {
-            margin-bottom: 8px;
             line-height: 1.6;
-        }
-
-        .message-content strong {
-            color: #FFD700;
+            margin-bottom: 10px;
         }
 
         .message-feedback {
             display: flex;
             align-items: center;
             gap: 10px;
-            margin-top: 15px;
-            padding-top: 15px;
+            margin-top: 10px;
+            padding-top: 10px;
             border-top: 1px solid rgba(255, 255, 255, 0.1);
         }
 
@@ -630,20 +611,20 @@
             </div>
             <div style="display: flex; gap: 15px; align-items: center;">
                 <div class="heritage-badge">Since 1963 - Over 60 Years of Excellence</div>
-                <div class="status-indicator">🧠 Enhanced AI with Context Memory</div>
+                <div class="status-indicator">🧠 Adaptive AI Assistants Online</div>
             </div>
         </header>
 
         <!-- Premium banner -->
         <div class="premium-banner">
             <h2>🏆 Premium AI Solutions</h2>
-            <p>Powered by Sharif Metals International's 60+ years of market expertise with adaptive learning & conversation memory</p>
+            <p>Powered by Sharif Metals International's 60+ years of market expertise with adaptive learning</p>
         </div>
 
         <!-- Enhanced banner -->
         <div class="enhanced-banner">
             <h2>⚡ Enhanced AI Assistants</h2>
-            <p>Advanced capabilities with adaptive learning and conversation context - they remember your topics and improve over time</p>
+            <p>Advanced capabilities with adaptive learning - they learn from your feedback and improve over time</p>
         </div>
 
         <!-- Main content -->
@@ -684,10 +665,6 @@
                         <span>Active</span>
                     </div>
                     <div class="stat-item">
-                        <span>Context Memory:</span>
-                        <span>Active</span>
-                    </div>
-                    <div class="stat-item">
                         <span>Interactions:</span>
                         <span id="interaction-count">0</span>
                     </div>
@@ -708,7 +685,7 @@
                         <div class="assistant-avatar layla-avatar">L</div>
                         <h3>Layla</h3>
                         <p class="role">Advanced Trading Assistant</p>
-                        <p class="description">Enhanced LME analysis, global supplier research, market forecasting with adaptive learning & conversation memory</p>
+                        <p class="description">Enhanced LME analysis, global supplier research, market forecasting, risk assessment with adaptive learning</p>
                     </div>
                     
                     <div class="assistant-card" id="alya-card" onclick="selectAssistant('alya')">
@@ -716,7 +693,7 @@
                         <div class="assistant-avatar alya-avatar">A</div>
                         <h3>Alya</h3>
                         <p class="role">Advanced Logistics Assistant</p>
-                        <p class="description">Shipping company research, vessel tracking, customs laws with adaptive learning & conversation memory</p>
+                        <p class="description">Shipping company research, vessel tracking, customs laws, route optimization with adaptive learning</p>
                     </div>
                 </div>
 
@@ -726,22 +703,17 @@
                         <div class="assistant-avatar layla-avatar" id="chat-avatar">L</div>
                         <div class="chat-header-info">
                             <h3 id="chat-assistant-name">Advanced Trading Assistant</h3>
-                            <p id="chat-assistant-description">Enhanced LME Market Analysis & Trading Intelligence with Context Memory</p>
+                            <p id="chat-assistant-description">Enhanced LME Market Analysis & Trading Intelligence with Adaptive Learning</p>
                         </div>
                     </div>
 
                     <div class="chat-messages" id="chat-messages">
                         <div class="message assistant-message">
                             <div class="message-content">
-                                <strong>Layla</strong><br><br>
-                                Hello! I'm Layla, your enhanced AI trading assistant for Sharif Metals International. I now have advanced capabilities including global supplier research with contact details, predictive market analysis, and comprehensive risk assessment.
+                                <strong>Layla</strong><br>
+                                Hello! I'm Layla, your enhanced AI trading assistant for Sharif Metals International. I now have advanced capabilities including global supplier research with contact details, predictive market analysis, and comprehensive risk assessment. 
                                 <br><br>
-                                🧠 <strong>New Features:</strong><br>
-                                • <strong>Adaptive Learning</strong> - I learn from your feedback and improve over time<br>
-                                • <strong>Conversation Memory</strong> - I remember our discussion topics, so you don't need to repeat context<br>
-                                • <strong>Better Formatting</strong> - Clearer, more readable responses with proper spacing
-                                <br><br>
-                                How can I assist you today?
+                                🧠 <strong>New:</strong> I'm equipped with adaptive learning - I learn from your feedback and improve my responses over time to better serve your needs. How can I assist you today?
                             </div>
                         </div>
                     </div>
@@ -770,7 +742,6 @@
 
     <script>
         let currentAssistant = 'layla';
-        let sessionId = 'session_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
 
         // Initialize particles
         function createParticles() {
@@ -866,7 +837,7 @@
                 avatar.className = 'assistant-avatar layla-avatar';
                 avatar.textContent = 'L';
                 name.textContent = 'Advanced Trading Assistant';
-                description.textContent = 'Enhanced LME Market Analysis & Trading Intelligence with Context Memory';
+                description.textContent = 'Enhanced LME Market Analysis & Trading Intelligence with Adaptive Learning';
                 
                 // Update quick actions for trading
                 updateQuickActions('trading');
@@ -874,7 +845,7 @@
                 avatar.className = 'assistant-avatar alya-avatar';
                 avatar.textContent = 'A';
                 name.textContent = 'Advanced Logistics Assistant';
-                description.textContent = 'Enhanced Shipping & Supply Chain Optimization with Context Memory';
+                description.textContent = 'Enhanced Shipping & Supply Chain Optimization with Adaptive Learning';
                 
                 // Update quick actions for logistics
                 updateQuickActions('logistics');
@@ -885,7 +856,7 @@
             chatMessages.innerHTML = `
                 <div class="message assistant-message">
                     <div class="message-content">
-                        <strong>${assistant === 'layla' ? 'Layla' : 'Alya'}</strong><br><br>
+                        <strong>${assistant === 'layla' ? 'Layla' : 'Alya'}</strong><br>
                         ${getWelcomeMessage(assistant)}
                     </div>
                 </div>
@@ -946,43 +917,12 @@
             if (assistant === 'layla') {
                 return `Hello! I'm Layla, your enhanced AI trading assistant for Sharif Metals International. I now have advanced capabilities including global supplier research with contact details, predictive market analysis, and comprehensive risk assessment.
                 <br><br>
-                🧠 <strong>New Features:</strong><br>
-                • <strong>Adaptive Learning</strong> - I learn from your feedback and improve over time<br>
-                • <strong>Conversation Memory</strong> - I remember our discussion topics, so you don't need to repeat context<br>
-                • <strong>Better Formatting</strong> - Clearer, more readable responses with proper spacing
-                <br><br>
-                How can I assist you today?`;
+                🧠 <strong>New:</strong> I'm equipped with adaptive learning - I learn from your feedback and improve my responses over time to better serve your needs. How can I assist you today?`;
             } else {
                 return `Hello! I'm Alya, your enhanced AI logistics assistant for Sharif Metals International. I specialize in shipping company research, vessel tracking, customs laws, and route optimization.
                 <br><br>
-                🧠 <strong>New Features:</strong><br>
-                • <strong>Adaptive Learning</strong> - I learn from your feedback and improve over time<br>
-                • <strong>Conversation Memory</strong> - I remember our discussion topics, so you don't need to repeat context<br>
-                • <strong>Better Formatting</strong> - Clearer, more readable responses with proper spacing
-                <br><br>
-                How can I help you today?`;
+                🧠 <strong>New:</strong> I'm equipped with adaptive learning - I learn from your feedback and improve my responses over time to better serve your logistics needs. How can I help you today?`;
             }
-        }
-
-        // Format AI response with better readability
-        function formatAIResponse(text) {
-            // Convert double line breaks to proper paragraphs
-            text = text.replace(/\n\n/g, '<br><br>');
-            
-            // Convert single line breaks to line breaks
-            text = text.replace(/\n/g, '<br>');
-            
-            // Format bullet points
-            text = text.replace(/• /g, '<br>• ');
-            text = text.replace(/- /g, '<br>• ');
-            
-            // Format numbered lists
-            text = text.replace(/(\d+\. )/g, '<br>$1');
-            
-            // Clean up extra breaks at the beginning
-            text = text.replace(/^(<br>)+/, '');
-            
-            return text;
         }
 
         // Send message
@@ -1005,10 +945,7 @@
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify({ 
-                        message: message,
-                        session_id: sessionId
-                    })
+                    body: JSON.stringify({ message: message })
                 });
                 
                 const data = await response.json();
@@ -1016,7 +953,7 @@
                 // Hide typing indicator
                 hideTypingIndicator();
                 
-                // Add assistant response to chat with better formatting
+                // Add assistant response to chat
                 addMessageToChat('assistant', data.response, data.interaction_id);
                 
                 // Update learning stats
@@ -1044,9 +981,7 @@
             let messageContent = `<div class="message-content">`;
             
             if (sender === 'assistant') {
-                messageContent += `<strong>${currentAssistant === 'layla' ? 'Layla' : 'Alya'}</strong><br><br>`;
-                // Format AI response for better readability
-                content = formatAIResponse(content);
+                messageContent += `<strong>${currentAssistant === 'layla' ? 'Layla' : 'Alya'}</strong><br>`;
             }
             
             messageContent += content + '</div>';
