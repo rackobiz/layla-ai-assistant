@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Assistants - Sharif Metals International</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); color: white; min-height: 100vh; }
+        
+        .header { position: fixed; top: 0; left: 0; right: 0; background: rgba(30, 60, 114, 0.95); backdrop-filter: blur(10px); padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; z-index: 1000; border-bottom: 1px solid rgba(255, 255, 255, 0.1); }
+        .logo-section { display: flex; align-items: center; gap: 15px; }
+        .company-logo { width: 50px; height: 50px; border-radius: 8px; background: white; padding: 5px; }
+        .company-info h1 { font-size: 24px; font-weight: 700; margin: 0; background: linear-gradient(45deg, #ffd700, #ffed4e); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        .company-info p { font-size: 12px; color: #b8d4f0; margin: 0; }
+        .company-tagline { font-size: 10px; color: #94a3b8; font-style: italic; margin-top: 2px; }
+        .status-indicator { display: flex; align-items: center; gap: 8px; background: rgba(34, 197, 94, 0.2); color: #4ade80; padding: 6px 12px; border-radius: 20px; font-size: 12px; }
+        .status-dot { width: 8px; height: 8px; background: #4ade80; border-radius: 50%; animation: pulse 2s infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+        
+        .container { display: flex; min-height: 100vh; max-width: 1400px; margin: 0 auto; gap: 20px; padding: 80px 20px 20px; }
+        .sidebar { width: 300px; background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); border-radius: 15px; padding: 20px; height: fit-content; border: 1px solid rgba(255, 255, 255, 0.2); }
+        .main-content { flex: 1; display: flex; flex-direction: column; gap: 20px; }
+        
+        /* Enhanced Branding */
+        .brand-banner { background: linear-gradient(45deg, rgba(255, 215, 0, 0.1), rgba(255, 237, 78, 0.1)); border: 1px solid rgba(255, 215, 0, 0.3); border-radius: 10px; padding: 15px; margin-bottom: 20px; text-align: center; }
+        .brand-banner h3 { color: #ffd700; font-size: 16px; margin-bottom: 5px; }
+        .brand-banner p { color: #e2e8f0; font-size: 12px; }
+        
+        /* Assistant Selection */
+        .assistant-selector { background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); border-radius: 15px; padding: 20px; margin-bottom: 20px; border: 1px solid rgba(255, 255, 255, 0.2); }
+        .assistant-selector h3 { text-align: center; margin-bottom: 20px; font-size: 20px; }
+        .assistant-options { display: flex; gap: 15px; }
+        .assistant-option { flex: 1; background: rgba(255, 255, 255, 0.1); border: 2px solid rgba(255, 255, 255, 0.2); border-radius: 12px; padding: 20px; cursor: pointer; transition: all 0.3s ease; text-align: center; position: relative; overflow: hidden; }
+        .assistant-option::before { content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent); transition: left 0.5s; }
+        .assistant-option:hover::before { left: 100%; }
+        .assistant-option:hover { background: rgba(255, 255, 255, 0.2); transform: translateY(-2px); box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2); }
+        .assistant-option.active { border-color: #3b82f6; background: rgba(59, 130, 246, 0.2); box-shadow: 0 0 20px rgba(59, 130, 246, 0.3); }
+        .assistant-avatar { width: 60px; height: 60px; border-radius: 50%; margin: 0 auto 10px; display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: bold; position: relative; }
+        .layla-avatar { background: linear-gradient(45deg, #f59e0b, #d97706); box-shadow: 0 4px 15px rgba(245, 158, 11, 0.4); }
+        .alya-avatar { background: linear-gradient(45deg, #10b981, #059669); box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4); }
+        .assistant-name { font-size: 18px; font-weight: 600; margin-bottom: 5px; }
+        .assistant-role { font-size: 12px; color: #b8d4f0; margin-bottom: 10px; }
+        .assistant-description { font-size: 11px; color: #cbd5e1; line-height: 1.4; }
+        .enhanced-badge { position: absolute; top: 5px; right: 5px; background: #ffd700; color: #1e3c72; font-size: 8px; padding: 2px 6px; border-radius: 10px; font-weight: bold; }
+        
+        /* Chat Container */
+        .chat-container { background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); border-radius: 15px; padding: 20px; flex: 1; display: flex; flex-direction: column; border: 1px solid rgba(255, 255, 255, 0.2); }
+        .chat-header { text-align: center; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 2px solid rgba(255, 255, 255, 0.3); }
+        .chat-header h2 { font-size: 28px; margin-bottom: 8px; }
+        .chat-header p { color: #b8d4f0; font-size: 16px; }
+        .current-assistant { display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 10px; }
+        .current-assistant-avatar { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: bold; }
+        
+        .chat-messages { flex: 1; overflow-y: auto; margin-bottom: 20px; max-height: 400px; padding-right: 10px; }
+        .message { margin-bottom: 15px; padding: 15px; border-radius: 12px; max-width: 85%; word-wrap: break-word; animation: fadeIn 0.3s ease-in; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .user-message { background: rgba(59, 130, 246, 0.3); margin-left: auto; border: 1px solid rgba(59, 130, 246, 0.5); }
+        .assistant-message { background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); }
+        .message-content { line-height: 1.6; white-space: pre-wrap; }
+        .typing-indicator { background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); padding: 15px; border-radius: 12px; max-width: 85%; margin-bottom: 15px; }
+        .typing-dots { display: flex; gap: 4px; }
+        .typing-dot { width: 8px; height: 8px; background: #94a3b8; border-radius: 50%; animation: typing 1.4s infinite; }
+        .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+        .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+        @keyframes typing { 0%, 60%, 100% { transform: translateY(0); } 30% { transform: translateY(-10px); } }
+        
+        .input-container { display: flex; gap: 10px; align-items: flex-end; }
+        .chat-input { flex: 1; background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.3); border-radius: 12px; padding: 15px; color: white; font-size: 16px; resize: vertical; min-height: 50px; max-height: 120px; transition: all 0.3s ease; }
+        .chat-input:focus { border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1); outline: none; }
+        .chat-input::placeholder { color: rgba(255, 255, 255, 0.6); }
+        .send-button { background: linear-gradient(45deg, #3b82f6, #1d4ed8); border: none; border-radius: 12px; padding: 15px 25px; color: white; font-weight: 600; cursor: pointer; transition: all 0.3s ease; position: relative; overflow: hidden; }
+        .send-button::before { content: ''; position: absolute; top: 50%; left: 50%; width: 0; height: 0; background: rgba(255, 255, 255, 0.2); border-radius: 50%; transition: all 0.3s ease; transform: translate(-50%, -50%); }
+        .send-button:hover::before { width: 100%; height: 100%; }
+        .send-button:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(59, 130, 246, 0.4); }
+        .send-button:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+        
+        /* Market Data */
+        .market-data h3 { font-size: 18px; margin-bottom: 15px; text-align: center; border-bottom: 2px solid rgba(255, 255, 255, 0.3); padding-bottom: 10px; }
+        .price-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid rgba(255, 255, 255, 0.1); transition: all 0.3s ease; }
+        .price-item:hover { background: rgba(255, 255, 255, 0.05); border-radius: 8px; padding-left: 10px; padding-right: 10px; }
+        .price-item:last-child { border-bottom: none; }
+        .metal-name { font-weight: 600; font-size: 14px; }
+        .price-info { text-align: right; }
+        .price { font-weight: 700; font-size: 14px; }
+        .change { font-size: 12px; margin-top: 2px; }
+        .change.positive { color: #4ade80; }
+        .change.negative { color: #f87171; }
+        .change.neutral { color: #94a3b8; }
+        
+        /* Enhanced Quick Actions */
+        .quick-actions h4 { font-size: 16px; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+        .quick-actions-icon { width: 16px; height: 16px; background: #ffd700; border-radius: 50%; }
+        .action-buttons { display: flex; flex-direction: column; gap: 8px; }
+        .action-button { background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 8px; padding: 12px; color: white; text-align: left; cursor: pointer; transition: all 0.3s ease; font-size: 14px; position: relative; overflow: hidden; }
+        .action-button::before { content: ''; position: absolute; left: 0; top: 0; width: 3px; height: 100%; background: linear-gradient(45deg, #ffd700, #ffed4e); transform: scaleY(0); transition: transform 0.3s ease; }
+        .action-button:hover::before { transform: scaleY(1); }
+        .action-button:hover { background: rgba(255, 255, 255, 0.2); transform: translateX(5px); padding-left: 20px; }
+        .enhanced-action { border-left: 3px solid #ffd700; }
+        
+        @media (max-width: 768px) { 
+            .container { flex-direction: column; padding: 80px 10px 10px; gap: 15px; } 
+            .sidebar { width: 100%; order: -1; padding: 15px; } 
+            .assistant-options { flex-direction: column; gap: 10px; }
+            .assistant-option { padding: 15px; }
+            .assistant-avatar { width: 50px; height: 50px; font-size: 20px; }
+            .chat-header h2 { font-size: 24px; }
+            .chat-messages { max-height: 300px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="logo-section">
+            <img src="logo.jpeg" alt="Sharif Metals International" class="company-logo">
+            <div class="company-info">
+                <h1>Sharif Metals International</h1>
+                <p>Non-Ferrous Metals Trading & Logistics</p>
+                <div class="company-tagline">Excellence in Global Metal Markets Since 1995</div>
+            </div>
+        </div>
+        <div class="status-indicator">
+            <div class="status-dot"></div>
+            <span>Enhanced AI Assistants Online</span>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="sidebar">
+            <div class="brand-banner">
+                <h3>🏆 Premium AI Solutions</h3>
+                <p>Powered by Sharif Metals International's 25+ years of market expertise</p>
+            </div>
+
+            <div class="market-data">
+                <h3>Live LME Prices</h3>
+                <div class="price-item">
+                    <div class="metal-name">Copper</div>
+                    <div class="price-info">
+                        <div class="price" id="copper-price">Loading...</div>
+                        <div class="change" id="copper-change">--</div>
+                    </div>
+                </div>
+                <div class="price-item">
+                    <div class="metal-name">Aluminum</div>
+                    <div class="price-info">
+                        <div class="price" id="aluminum-price">Loading...</div>
+                        <div class="change" id="aluminum-change">--</div>
+                    </div>
+                </div>
+                <div class="price-item">
+                    <div class="metal-name">Zinc</div>
+                    <div class="price-info">
+                        <div class="price" id="zinc-price">Loading...</div>
+                        <div class="change" id="zinc-change">--</div>
+                    </div>
+                </div>
+                <div class="price-item">
+                    <div class="metal-name">Lead</div>
+                    <div class="price-info">
+                        <div class="price" id="lead-price">Loading...</div>
+                        <div class="change" id="lead-change">--</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="quick-actions" style="margin-top: 30px;">
+                <h4 id="quick-actions-title">
+                    <div class="quick-actions-icon"></div>
+                    Quick Actions
+                </h4>
+                <div class="action-buttons" id="action-buttons">
+                    <!-- Dynamic content based on selected assistant -->
+                </div>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div class="brand-banner">
+                <h3>🚀 Enhanced AI Assistants</h3>
+                <p>Advanced capabilities including shipping research, vessel tracking, and customs laws</p>
+            </div>
+
+            <div class="assistant-selector">
+                <h3>Choose Your Enhanced AI Assistant</h3>
+                <div class="assistant-options">
+                    <div class="assistant-option active" id="layla-option">
+                        <div class="enhanced-badge">ENHANCED</div>
+                        <div class="assistant-avatar layla-avatar">L</div>
+                        <div class="assistant-name">Layla</div>
+                        <div class="assistant-role">Advanced Trading Assistant</div>
+                        <div class="assistant-description">Enhanced LME analysis, global supplier research, market forecasting, risk assessment</div>
+                    </div>
+                    <div class="assistant-option" id="alya-option">
+                        <div class="enhanced-badge">ENHANCED</div>
+                        <div class="assistant-avatar alya-avatar">A</div>
+                        <div class="assistant-name">Alya</div>
+                        <div class="assistant-role">Advanced Logistics Assistant</div>
+                        <div class="assistant-description">Shipping company research, vessel tracking, customs laws, route optimization</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="chat-container">
+                <div class="chat-header">
+                    <h2 id="chat-title">Advanced Trading Assistant</h2>
+                    <p id="chat-subtitle">Enhanced LME Market Analysis & Trading Intelligence</p>
+                    <div class="current-assistant">
+                        <div class="current-assistant-avatar layla-avatar" id="current-avatar">L</div>
+                        <span id="current-assistant-name">Layla</span>
+                    </div>
+                </div>
+
+                <div class="chat-messages" id="chat-messages">
+                    <div class="message assistant-message">
+                        <div class="message-content" id="welcome-message">Hello! I'm Layla, your enhanced AI trading assistant for Sharif Metals International. I now have advanced capabilities including global supplier research with contact details, predictive market analysis, and comprehensive risk assessment. How can I assist you today?</div>
+                    </div>
+                </div>
+
+                <div class="input-container">
+                    <textarea class="chat-input" id="chat-input" placeholder="Ask about LME prices, suppliers, market forecasts..." rows="1"></textarea>
+                    <button class="send-button" id="send-button" onclick="sendMessage()">Send</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentAssistant = 'layla';
+        let isTyping = false;
+        const sessionId = 'session_' + Date.now();
+
+        const assistantData = {
+            layla: {
+                name: 'Layla',
+                title: 'Advanced Trading Assistant',
+                subtitle: 'Enhanced LME Market Analysis & Trading Intelligence',
+                avatar: 'layla-avatar',
+                letter: 'L',
+                welcome: 'Hello! I\'m Layla, your enhanced AI trading assistant for Sharif Metals International. I now have advanced capabilities including global supplier research with contact details, predictive market analysis, and comprehensive risk assessment. How can I assist you today?',
+                placeholder: 'Ask about LME prices, suppliers, market forecasts...',
+                quickTitle: 'Enhanced Trading Actions',
+                actions: [
+                    { text: '📊 Advanced market analysis', message: 'Provide an advanced market analysis with predictive insights for copper and aluminum', enhanced: true },
+                    { text: '🏭 Find suppliers with contacts', message: 'Find reliable copper suppliers in India with full contact details and ratings', enhanced: true },
+                    { text: '📈 Price forecasting', message: 'What are your price forecasts for non-ferrous metals over the next 3 months?', enhanced: true },
+                    { text: '⚠️ Risk assessment', message: 'Provide a comprehensive risk assessment for current metal trading opportunities', enhanced: true },
+                    { text: '💰 Trading opportunities', message: 'What are the best trading opportunities in metals right now with profit projections?' }
+                ]
+            },
+            alya: {
+                name: 'Alya',
+                title: 'Advanced Logistics Assistant',
+                subtitle: 'Enhanced Shipping & Supply Chain Optimization',
+                avatar: 'alya-avatar',
+                letter: 'A',
+                welcome: 'Hello! I\'m Alya, your enhanced AI logistics assistant for Sharif Metals International. I now have advanced capabilities including shipping company research with contact details, real-time vessel tracking, and comprehensive customs laws database. How can I assist you today?',
+                placeholder: 'Ask about shipping companies, vessel tracking, customs laws...',
+                quickTitle: 'Enhanced Logistics Actions',
+                actions: [
+                    { text: '🚢 Research shipping companies', message: 'Find the best shipping companies for aluminum transport from India to UAE with contact details', enhanced: true },
+                    { text: '📍 Track vessels', message: 'Track vessels carrying metal shipments and provide real-time status updates', enhanced: true },
+                    { text: '📋 Customs laws research', message: 'Research customs laws and duties for importing copper into UAE', enhanced: true },
+                    { text: '🗺️ Route optimization', message: 'What\'s the most cost-effective shipping route from China to Dubai for zinc?', enhanced: true },
+                    { text: '⚓ Port congestion updates', message: 'Are there any port congestion issues affecting metal shipments currently?' }
+                ]
+            }
+        };
+
+        async function loadMarketData() {
+            try {
+                const response = await fetch('/api/market-data');
+                const data = await response.json();
+                
+                if (data.lme_prices) {
+                    updatePriceDisplay(data.lme_prices);
+                }
+            } catch (error) {
+                console.error('Error loading market data:', error);
+            }
+        }
+
+        function updatePriceDisplay(prices) {
+            const metals = ['copper', 'aluminum', 'zinc', 'lead'];
+            
+            for (const metal of metals) {
+                const priceData = prices[metal];
+                const priceElement = document.getElementById(`${metal}-price`);
+                const changeElement = document.getElementById(`${metal}-change`);
+                
+                if (priceElement && changeElement && priceData) {
+                    priceElement.textContent = `$${priceData.price_usd_per_tonne.toLocaleString()}/t`;
+                    
+                    const change = priceData.change_percent;
+                    const changeText = `${change >= 0 ? '+' : ''}${change.toFixed(1)}%`;
+                    changeElement.textContent = changeText;
+                    
+                    // Set color based on change
+                    changeElement.className = 'change ' + 
+                        (change > 0 ? 'positive' : change < 0 ? 'negative' : 'neutral');
+                }
+            }
+        }
+
+        function switchAssistant(assistant) {
+            currentAssistant = assistant;
+            const data = assistantData[assistant];
+            
+            // Update UI
+            document.getElementById('chat-title').textContent = data.title;
+            document.getElementById('chat-subtitle').textContent = data.subtitle;
+            const currentAvatar = document.getElementById('current-avatar');
+            currentAvatar.className = `current-assistant-avatar ${data.avatar}`;
+            currentAvatar.textContent = data.letter;
+            document.getElementById('current-assistant-name').textContent = data.name;
+            document.getElementById('welcome-message').textContent = data.welcome;
+            document.getElementById('chat-input').placeholder = data.placeholder;
+            document.getElementById('quick-actions-title').innerHTML = `
+                <div class="quick-actions-icon"></div>
+                ${data.quickTitle}
+            `;
+            
+            // Update quick actions with enhanced indicators
+            const actionButtons = document.getElementById('action-buttons');
+            actionButtons.innerHTML = data.actions.map(action => 
+                `<button class="action-button ${action.enhanced ? 'enhanced-action' : ''}" onclick="sendQuickMessage('${action.message}')">${action.text}</button>`
+            ).join('');
+            
+            // Update active state
+            document.querySelectorAll('.assistant-option').forEach(opt => opt.classList.remove('active'));
+            document.getElementById(`${assistant}-option`).classList.add('active');
+            
+            // Clear chat messages except welcome
+            const chatMessages = document.getElementById('chat-messages');
+            chatMessages.innerHTML = `
+                <div class="message assistant-message">
+                    <div class="message-content">${data.welcome}</div>
+                </div>
+            `;
+        }
+
+        function addMessage(content, isUser = false) {
+            const chatMessages = document.getElementById('chat-messages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${isUser ? 'user-message' : 'assistant-message'}`;
+            messageDiv.innerHTML = `<div class="message-content">${content}</div>`;
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function showTypingIndicator() {
+            const chatMessages = document.getElementById('chat-messages');
+            const typingDiv = document.createElement('div');
+            typingDiv.className = 'typing-indicator';
+            typingDiv.id = 'typing-indicator';
+            typingDiv.innerHTML = `
+                <div class="typing-dots">
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                </div>
+            `;
+            chatMessages.appendChild(typingDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function hideTypingIndicator() {
+            const typingIndicator = document.getElementById('typing-indicator');
+            if (typingIndicator) {
+                typingIndicator.remove();
+            }
+        }
+
+        async function sendMessage() {
+            const input = document.getElementById('chat-input');
+            const sendButton = document.getElementById('send-button');
+            const message = input.value.trim();
+            
+            if (!message || isTyping) return;
+            
+            // Add user message
+            addMessage(message, true);
+            input.value = '';
+            
+            // Show typing indicator
+            isTyping = true;
+            sendButton.disabled = true;
+            showTypingIndicator();
+            
+            try {
+                const response = await fetch(`/api/${currentAssistant}/chat`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        message: message,
+                        session_id: sessionId
+                    })
+                });
+                
+                const data = await response.json();
+                
+                hideTypingIndicator();
+                
+                if (data.status === 'success') {
+                    addMessage(data.response);
+                    
+                    // Show enhanced features indicator if used
+                    if (data.enhanced_features) {
+                        setTimeout(() => {
+                            addMessage('✨ Enhanced features were used to provide this comprehensive response!', false);
+                        }, 1000);
+                    }
+                } else {
+                    addMessage('I apologize, but I encountered an error. Please try again.');
+                }
+            } catch (error) {
+                hideTypingIndicator();
+                addMessage('I apologize, but I\'m having trouble connecting right now. Please try again in a moment.');
+            }
+            
+            isTyping = false;
+            sendButton.disabled = false;
+        }
+
+        function sendQuickMessage(message) {
+            document.getElementById('chat-input').value = message;
+            sendMessage();
+        }
+
+        // Event listeners
+        document.getElementById('layla-option').addEventListener('click', () => switchAssistant('layla'));
+        document.getElementById('alya-option').addEventListener('click', () => switchAssistant('alya'));
+
+        // Enter key to send message
+        document.getElementById('chat-input').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        });
+
+        // Auto-resize textarea
+        document.getElementById('chat-input').addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+        });
+
+        // Load market data on page load and refresh every 30 seconds
+        loadMarketData();
+        setInterval(loadMarketData, 30000);
+
+        // Initialize with enhanced quick actions
+        switchAssistant('layla');
+    </script>
+</body>
+</html>
