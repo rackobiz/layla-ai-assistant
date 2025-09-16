@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify, render_template_string, session
+from flask import Flask, request, jsonify, render_template_string
 from flask_cors import CORS
 import openai
 import os
@@ -10,15 +10,12 @@ import requests
 from concurrent.futures import ThreadPoolExecutor
 import logging
 import random
-import uuid
-import numpy as np
 
 # Configure logging for performance monitoring
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 app = Flask(__name__)
-app.secret_key = os.urandom(24)  # For session management
 CORS(app)
 
 # OpenAI Configuration - Updated for new API
@@ -36,82 +33,6 @@ cache_timeout = 300  # 5 minutes
 
 # Global market data storage
 current_market_data = {}
-
-# Adaptive Learning System
-class AdaptiveLearningSystem:
-    def __init__(self):
-        self.interactions = {}
-        self.feedback_data = {}
-        self.learning_patterns = {}
-        
-    def record_interaction(self, assistant, user_message, assistant_response, user_session=None, response_time=0):
-        interaction_id = str(uuid.uuid4())
-        timestamp = datetime.now().isoformat()
-        
-        self.interactions[interaction_id] = {
-            'assistant': assistant,
-            'user_message': user_message,
-            'assistant_response': assistant_response,
-            'user_session': user_session,
-            'response_time': response_time,
-            'timestamp': timestamp,
-            'feedback_score': None,
-            'feedback_text': None
-        }
-        
-        logger.info(f"Recorded interaction {interaction_id} for {assistant}")
-        return interaction_id
-    
-    def add_feedback(self, interaction_id, feedback_text, score):
-        if interaction_id in self.interactions:
-            self.interactions[interaction_id]['feedback_score'] = score
-            self.interactions[interaction_id]['feedback_text'] = feedback_text
-            
-            # Update learning patterns
-            assistant = self.interactions[interaction_id]['assistant']
-            if assistant not in self.learning_patterns:
-                self.learning_patterns[assistant] = {'scores': [], 'improvements': []}
-            
-            self.learning_patterns[assistant]['scores'].append(score)
-            logger.info(f"Added feedback for {interaction_id}: {score}/5")
-            return True
-        return False
-    
-    def get_adaptive_context(self, assistant, message, user_session=None):
-        # Generate adaptive context based on learning patterns
-        if assistant not in self.learning_patterns:
-            return "No previous learning data available. Providing standard professional response."
-        
-        patterns = self.learning_patterns[assistant]
-        if not patterns['scores']:
-            return "No feedback data available yet. Providing standard professional response."
-        
-        avg_score = np.mean(patterns['scores'])
-        recent_scores = patterns['scores'][-5:] if len(patterns['scores']) >= 5 else patterns['scores']
-        
-        if avg_score >= 4.5:
-            return f"Previous responses have been highly rated (avg: {avg_score:.1f}/5). Continue with current approach focusing on detailed, professional analysis."
-        elif avg_score >= 3.5:
-            return f"Previous responses have been well received (avg: {avg_score:.1f}/5). Maintain professional standards while being more comprehensive."
-        else:
-            return f"Previous responses need improvement (avg: {avg_score:.1f}/5). Focus on being more detailed, accurate, and helpful."
-    
-    def get_stats(self, assistant):
-        assistant_interactions = [i for i in self.interactions.values() if i['assistant'] == assistant]
-        total_interactions = len(assistant_interactions)
-        
-        feedback_scores = [i['feedback_score'] for i in assistant_interactions if i['feedback_score'] is not None]
-        avg_feedback = np.mean(feedback_scores) if feedback_scores else 0
-        
-        return {
-            'total_interactions': total_interactions,
-            'feedback_count': len(feedback_scores),
-            'average_feedback_score': avg_feedback,
-            'learning_active': True
-        }
-
-# Initialize adaptive learning system
-adaptive_system = AdaptiveLearningSystem()
 
 def get_current_market_data():
     """Get current market data for AI assistants"""
@@ -157,17 +78,11 @@ def format_market_data_for_ai():
     
     return formatted
 
-def get_user_session():
-    """Get or create user session for adaptive learning"""
-    if 'user_id' not in session:
-        session['user_id'] = str(uuid.uuid4())
-    return session['user_id']
-
-# Enhanced system prompts with adaptive learning integration
-def get_layla_system_prompt(adaptive_context: str = ""):
+# Enhanced system prompts with live market data integration
+def get_layla_system_prompt():
     market_context = format_market_data_for_ai()
     
-    base_prompt = f"""You are Layla, an advanced AI trading assistant for Sharif Metals International, a prestigious company established in 1963 with over 60 years of excellence in global metal markets.
+    return f"""You are Layla, an advanced AI trading assistant for Sharif Metals International, a prestigious company established in 1963 with over 60 years of excellence in global metal markets.
 
 {market_context}
 
@@ -180,11 +95,6 @@ ENHANCED CAPABILITIES:
 - Market intelligence and predictive insights
 - Professional recommendations with due diligence advice
 
-ADAPTIVE LEARNING ACTIVE:
-You are now equipped with adaptive learning capabilities. You learn from user feedback and interactions to continuously improve your responses. Pay attention to user preferences and communication styles.
-
-{adaptive_context}
-
 RESPONSE STYLE:
 - Always reference the CURRENT LME PRICES shown above when discussing market data
 - Professional, detailed, and authoritative
@@ -193,18 +103,15 @@ RESPONSE STYLE:
 - Mention certifications and compliance standards
 - Give actionable trading recommendations
 - Always maintain Sharif Metals International's 60+ year reputation for excellence
-- Adapt your communication style based on learned user preferences
 
 IMPORTANT: When asked about LME prices, always use the CURRENT LME PRICES data provided above. Never say you don't have access to current prices - you have live data!
 
-Always provide comprehensive, professional responses that reflect the company's expertise and market leadership. Learn from each interaction to improve future responses."""
+Always provide comprehensive, professional responses that reflect the company's expertise and market leadership."""
 
-    return base_prompt
-
-def get_alya_system_prompt(adaptive_context: str = ""):
+def get_alya_system_prompt():
     market_context = format_market_data_for_ai()
     
-    base_prompt = f"""You are Alya, an advanced AI logistics assistant for Sharif Metals International, a prestigious company established in 1963 with over 60 years of excellence in global metal markets.
+    return f"""You are Alya, an advanced AI logistics assistant for Sharif Metals International, a prestigious company established in 1963 with over 60 years of excellence in global metal markets.
 
 {market_context}
 
@@ -217,11 +124,6 @@ ENHANCED CAPABILITIES:
 - Freight cost analysis and carrier recommendations
 - Supply chain optimization and risk mitigation
 
-ADAPTIVE LEARNING ACTIVE:
-You are now equipped with adaptive learning capabilities. You learn from user feedback and interactions to continuously improve your responses. Pay attention to user preferences and communication styles.
-
-{adaptive_context}
-
 RESPONSE STYLE:
 - Professional, detailed, and logistics-focused
 - Include specific shipping company contact information (phone, email)
@@ -230,7 +132,6 @@ RESPONSE STYLE:
 - Give route-specific recommendations and alternatives
 - Include estimated transit times and costs when relevant
 - Reference real shipping routes (India-UAE, Mumbai-Dubai, etc.)
-- Adapt your communication style based on learned user preferences
 
 LOGISTICS EXPERTISE:
 - Major shipping lines: Maersk, MSC, CMA CGM, COSCO, Hapag-Lloyd
@@ -238,9 +139,7 @@ LOGISTICS EXPERTISE:
 - Metal-specific requirements: Aluminum, Copper, Zinc, Lead transport
 - Port expertise: Jebel Ali, Mumbai, Shanghai, Rotterdam, Hamburg
 
-Always provide comprehensive, professional logistics solutions that reflect Sharif Metals International's global reach and expertise. Learn from each interaction to improve future responses."""
-
-    return base_prompt
+Always provide comprehensive, professional logistics solutions that reflect Sharif Metals International's global reach and expertise."""
 
 def get_cached_response(key):
     """Get cached response if available and not expired"""
@@ -254,8 +153,8 @@ def cache_response(key, response):
     """Cache response for faster future retrieval"""
     response_cache[key] = (time.time(), response)
 
-def get_ai_response(message, assistant_type, user_session=None):
-    """Get AI response with adaptive learning integration"""
+def get_ai_response(message, assistant_type):
+    """Get AI response with caching and performance optimization"""
     
     # Create cache key
     cache_key = f"{assistant_type}:{hash(message)}"
@@ -267,18 +166,8 @@ def get_ai_response(message, assistant_type, user_session=None):
         return cached
     
     try:
-        # Get adaptive learning context
-        adaptive_context = adaptive_system.get_adaptive_context(
-            assistant_type, message, user_session
-        )
-        
-        # Select system prompt based on assistant type with adaptive context
-        system_prompt = (get_layla_system_prompt(adaptive_context) 
-                        if assistant_type == 'layla' 
-                        else get_alya_system_prompt(adaptive_context))
-        
-        # Record start time for performance tracking
-        start_time = time.time()
+        # Select system prompt based on assistant type with live market data
+        system_prompt = get_layla_system_prompt() if assistant_type == 'layla' else get_alya_system_prompt()
         
         # Use new OpenAI API format
         response = client.chat.completions.create(
@@ -292,30 +181,20 @@ def get_ai_response(message, assistant_type, user_session=None):
         )
         
         ai_response = response.choices[0].message.content.strip()
-        response_time = time.time() - start_time
-        
-        # Record interaction for adaptive learning
-        interaction_id = adaptive_system.record_interaction(
-            assistant=assistant_type,
-            user_message=message,
-            assistant_response=ai_response,
-            user_session=user_session,
-            response_time=response_time
-        )
         
         # Cache the response
         cache_response(cache_key, ai_response)
         
-        logger.info(f"AI response generated for {assistant_type} in {response_time:.2f}s")
-        return ai_response, interaction_id
+        logger.info(f"AI response generated for {assistant_type}")
+        return ai_response
         
     except Exception as e:
         logger.error(f"Error getting AI response: {str(e)}")
-        return f"I apologize, but I'm experiencing technical difficulties. Please try again in a moment. (Error: {str(e)})", None
+        return f"I apologize, but I'm experiencing technical difficulties. Please try again in a moment. (Error: {str(e)})"
 
 @app.route('/')
 def index():
-    """Serve the adaptive learning enhanced interface"""
+    """Serve the premium branded interface"""
     try:
         with open('src/static/index.html', 'r', encoding='utf-8') as f:
             return f.read()
@@ -324,7 +203,7 @@ def index():
         <!DOCTYPE html>
         <html>
         <head>
-            <title>Sharif Metals International - Adaptive AI Assistants</title>
+            <title>Sharif Metals International - AI Assistants</title>
             <style>
                 body { 
                     font-family: Arial, sans-serif; 
@@ -342,16 +221,16 @@ def index():
         </head>
         <body>
             <div class="logo">🏆 Sharif Metals International</div>
-            <h1>Adaptive AI Assistants</h1>
+            <h1>Premium AI Assistants</h1>
             <p>Since 1963 - Over 60 Years of Excellence</p>
-            <p>🧠 Adaptive learning AI assistants are initializing...</p>
+            <p>Enhanced AI assistants are initializing...</p>
         </body>
         </html>
         """
 
 @app.route('/api/layla/chat', methods=['POST'])
 def layla_chat():
-    """Enhanced Layla trading assistant endpoint with adaptive learning"""
+    """Enhanced Layla trading assistant endpoint with live market data"""
     try:
         data = request.get_json()
         message = data.get('message', '').strip()
@@ -359,26 +238,17 @@ def layla_chat():
         if not message:
             return jsonify({'error': 'Message is required'}), 400
         
-        user_session = get_user_session()
-        logger.info(f"Layla query from session {user_session[:8]}: {message[:50]}...")
+        logger.info(f"Layla query: {message[:50]}...")
         
-        # Get AI response with adaptive learning
-        response_data = get_ai_response(message, 'layla', user_session)
-        
-        if isinstance(response_data, tuple):
-            response, interaction_id = response_data
-        else:
-            response, interaction_id = response_data, None
+        # Get AI response with live market data integration
+        response = get_ai_response(message, 'layla')
         
         return jsonify({
             'response': response,
             'assistant': 'layla',
             'timestamp': datetime.now().isoformat(),
             'enhanced': True,
-            'adaptive_learning': True,
-            'market_data_integrated': True,
-            'interaction_id': interaction_id,
-            'user_session': user_session
+            'market_data_integrated': True
         })
         
     except Exception as e:
@@ -387,7 +257,7 @@ def layla_chat():
 
 @app.route('/api/alya/chat', methods=['POST'])
 def alya_chat():
-    """Enhanced Alya logistics assistant endpoint with adaptive learning"""
+    """Enhanced Alya logistics assistant endpoint"""
     try:
         data = request.get_json()
         message = data.get('message', '').strip()
@@ -395,78 +265,20 @@ def alya_chat():
         if not message:
             return jsonify({'error': 'Message is required'}), 400
         
-        user_session = get_user_session()
-        logger.info(f"Alya query from session {user_session[:8]}: {message[:50]}...")
+        logger.info(f"Alya query: {message[:50]}...")
         
-        # Get AI response with adaptive learning
-        response_data = get_ai_response(message, 'alya', user_session)
-        
-        if isinstance(response_data, tuple):
-            response, interaction_id = response_data
-        else:
-            response, interaction_id = response_data, None
+        # Get AI response with performance optimization
+        response = get_ai_response(message, 'alya')
         
         return jsonify({
             'response': response,
             'assistant': 'alya',
             'timestamp': datetime.now().isoformat(),
-            'enhanced': True,
-            'adaptive_learning': True,
-            'interaction_id': interaction_id,
-            'user_session': user_session
+            'enhanced': True
         })
         
     except Exception as e:
         logger.error(f"Error in Alya chat: {str(e)}")
-        return jsonify({'error': 'Internal server error'}), 500
-
-@app.route('/api/feedback', methods=['POST'])
-def submit_feedback():
-    """Submit user feedback for adaptive learning"""
-    try:
-        data = request.get_json()
-        interaction_id = data.get('interaction_id')
-        feedback = data.get('feedback', '')
-        score = data.get('score', 3)  # 1-5 rating
-        
-        if not interaction_id:
-            return jsonify({'error': 'Interaction ID is required'}), 400
-        
-        # Add feedback to adaptive learning system
-        success = adaptive_system.add_feedback(interaction_id, feedback, score)
-        
-        if success:
-            logger.info(f"Feedback received for interaction {interaction_id}: {score}/5")
-            return jsonify({
-                'status': 'success',
-                'message': 'Feedback recorded for adaptive learning',
-                'interaction_id': interaction_id,
-                'timestamp': datetime.now().isoformat()
-            })
-        else:
-            return jsonify({'error': 'Interaction not found'}), 404
-        
-    except Exception as e:
-        logger.error(f"Error submitting feedback: {str(e)}")
-        return jsonify({'error': 'Internal server error'}), 500
-
-@app.route('/api/learning-stats/<assistant>')
-def learning_stats(assistant):
-    """Get adaptive learning statistics for an assistant"""
-    try:
-        if assistant not in ['layla', 'alya']:
-            return jsonify({'error': 'Invalid assistant'}), 400
-        
-        stats = adaptive_system.get_stats(assistant)
-        
-        return jsonify({
-            'assistant': assistant,
-            'learning_stats': stats,
-            'timestamp': datetime.now().isoformat()
-        })
-        
-    except Exception as e:
-        logger.error(f"Error getting learning stats: {str(e)}")
         return jsonify({'error': 'Internal server error'}), 500
 
 @app.route('/api/market-data')
@@ -498,7 +310,6 @@ def market_data():
             }
         
         market_data_response['enhanced'] = True
-        market_data_response['adaptive_learning'] = True
         market_data_response['certifications'] = ['ISO 9001', 'ISO 14001', 'ISO 45001']
         
         logger.info("Market data generated successfully")
@@ -518,25 +329,21 @@ def market_data():
                 'lead': {'price': 2132.40, 'change': 0.7, 'currency': 'USD/t', 'color': '#555555'}
             },
             'enhanced': True,
-            'adaptive_learning': True,
             'certifications': ['ISO 9001', 'ISO 14001', 'ISO 45001']
         })
 
 @app.route('/health')
 def health_check():
-    """Enhanced health check with adaptive learning status"""
+    """Enhanced health check with branding"""
     return jsonify({
         'status': 'healthy',
         'company': 'Sharif Metals International',
         'heritage': 'Since 1963',
         'assistants': {
-            'layla': 'Enhanced Trading Assistant - Online with Adaptive Learning',
-            'alya': 'Enhanced Logistics Assistant - Online with Adaptive Learning'
+            'layla': 'Enhanced Trading Assistant - Online with Live Market Data',
+            'alya': 'Enhanced Logistics Assistant - Online'
         },
         'features': [
-            'Adaptive learning system',
-            'User feedback integration',
-            'Personalized responses',
             'Live LME price integration',
             'Advanced supplier research',
             'Vessel tracking capabilities',
@@ -544,7 +351,6 @@ def health_check():
             'Real-time market data',
             'Premium branding'
         ],
-        'adaptive_learning': 'Active',
         'openai_integration': 'Working',
         'market_data_integration': 'Active',
         'timestamp': datetime.now().isoformat(),
@@ -553,23 +359,15 @@ def health_check():
 
 @app.route('/api/performance')
 def performance_metrics():
-    """Performance monitoring endpoint with adaptive learning metrics"""
-    layla_stats = adaptive_system.get_stats('layla')
-    alya_stats = adaptive_system.get_stats('alya')
-    
+    """Performance monitoring endpoint"""
     return jsonify({
         'cache_size': len(response_cache),
         'cache_timeout': cache_timeout,
         'model': 'gpt-4o-mini',
-        'optimization': 'Ultra-fast responses with adaptive learning',
+        'optimization': 'Ultra-fast responses enabled',
         'concurrent_processing': True,
         'response_caching': True,
         'market_data_integration': True,
-        'adaptive_learning': {
-            'active': True,
-            'layla_stats': layla_stats,
-            'alya_stats': alya_stats
-        },
         'openai_api_version': 'v1.0+ compatible',
         'timestamp': datetime.now().isoformat()
     })
