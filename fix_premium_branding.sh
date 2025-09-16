@@ -1,3 +1,48 @@
+#!/bin/bash
+
+echo "🔧 FIXING PREMIUM BRANDING DEPLOYMENT"
+echo "===================================="
+echo "Correcting heritage year and ensuring all assets deploy properly"
+echo ""
+
+# Create backup with timestamp
+BACKUP_DIR="backup_fix_$(date +%Y%m%d_%H%M%S)"
+echo "📁 Creating backup in $BACKUP_DIR..."
+mkdir -p "$BACKUP_DIR"
+
+# Backup existing files
+if [ -f "app.py" ]; then
+    cp app.py "$BACKUP_DIR/"
+    echo "✅ Backed up app.py"
+fi
+
+if [ -f "src/static/index.html" ]; then
+    cp src/static/index.html "$BACKUP_DIR/"
+    echo "✅ Backed up src/static/index.html"
+fi
+
+echo ""
+echo "🎨 DEPLOYING CORRECTED PREMIUM BRANDING..."
+echo "=========================================="
+
+# Deploy corrected backend
+echo "🔧 Updating backend with corrected heritage year..."
+cp premium_branded_app.py app.py
+
+# Fix the heritage year in the backend
+sed -i 's/Since 1995/Since 1963/g' app.py
+sed -i 's/25+ years/60+ years/g' app.py
+sed -i 's/Over 25 Years/Over 60 Years/g' app.py
+
+echo "✅ Backend updated with correct heritage: Since 1963"
+
+# Deploy corrected frontend
+echo ""
+echo "🎨 Updating frontend with corrected heritage and enhanced branding..."
+mkdir -p src/static
+
+# Create corrected HTML with proper heritage year
+cat > src/static/index.html << 'EOF'
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -963,3 +1008,62 @@
     </script>
 </body>
 </html>
+EOF
+
+echo "✅ Frontend updated with corrected heritage: Since 1963 - Over 60 Years of Excellence"
+
+echo ""
+echo "🚀 COMMITTING CORRECTED BRANDING TO GIT..."
+echo "========================================"
+
+# Git operations
+git add .
+echo "✅ Files staged for commit"
+
+git commit -m "🔧 FIX PREMIUM BRANDING: Correct heritage year to Since 1963
+
+✅ CORRECTIONS APPLIED:
+- Heritage year corrected: Since 1963 (not 1995)
+- Experience updated: Over 60 Years of Excellence
+- Premium branding elements enhanced
+- Custom metal icons integrated
+- Professional animations and effects
+- Enhanced assistant capabilities maintained
+
+🏆 SHARIF METALS INTERNATIONAL PREMIUM BRANDING:
+- Correct founding year: 1963
+- Heritage showcase with Arabic elements
+- Custom metal commodity icons
+- ISO certification badges
+- Premium visual effects and animations
+- Enhanced AI assistants with advanced capabilities
+
+🎯 DEPLOYMENT STATUS: Premium branded system with correct heritage"
+
+echo "✅ Changes committed to git"
+
+git push origin main
+echo "✅ Changes pushed to remote repository"
+
+echo ""
+echo "🎉 PREMIUM BRANDING FIX DEPLOYMENT COMPLETE!"
+echo "==========================================="
+echo ""
+echo "🏆 SHARIF METALS INTERNATIONAL - CORRECTED PREMIUM BRANDING"
+echo "Since 1963 - Over 60 Years of Excellence"
+echo ""
+echo "✅ CORRECTIONS DEPLOYED:"
+echo "   📅 Heritage year: Since 1963 (corrected from 1995)"
+echo "   🏆 Experience: Over 60 Years of Excellence"
+echo "   🎨 Premium visual branding with heritage showcase"
+echo "   🏅 Professional certifications display"
+echo "   ⚡ Enhanced AI assistants with advanced capabilities"
+echo ""
+echo "🔗 Your corrected website will be available at:"
+echo "   https://sharif-metals-ai.up.railway.app/"
+echo ""
+echo "🚀 Railway will automatically deploy the corrected premium branded system!"
+echo "   Deployment typically takes 2-3 minutes"
+echo ""
+echo "✅ HERITAGE CORRECTION COMPLETE - PREMIUM BRANDING FIXED!"
+
