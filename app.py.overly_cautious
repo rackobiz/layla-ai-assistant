@@ -26,63 +26,6 @@ try:
 except ImportError:
     HAS_OPENAI = False
 
-# Business contact database for major metals companies
-BUSINESS_CONTACTS = {
-    "glencore": {
-        "company_name": "Glencore plc",
-        "headquarters": "Baar, Switzerland",
-        "main_phone": "+41 41 709 2000",
-        "trading_desk": "+41 41 709 2000",
-        "email_general": "info@glencore.com",
-        "email_trading": "metals.trading@glencore.com",
-        "website": "https://www.glencore.com",
-        "address": "Baarermattstrasse 3, 6340 Baar, Switzerland",
-        "business_type": "Mining and commodity trading",
-        "metals": ["copper", "zinc", "lead", "aluminum", "nickel"],
-        "regions": ["Global", "Europe", "Asia", "Americas", "Africa"],
-        "public_company": True,
-        "stock_exchange": "LSE: GLEN"
-    },
-    "trafigura": {
-        "company_name": "Trafigura Group",
-        "headquarters": "Singapore",
-        "main_phone": "+65 6572 8200",
-        "email_general": "info@trafigura.com",
-        "website": "https://www.trafigura.com",
-        "business_type": "Commodity trading",
-        "metals": ["copper", "zinc", "lead", "aluminum", "nickel"],
-        "regions": ["Global", "Asia", "Europe", "Americas"]
-    },
-    "vitol": {
-        "company_name": "Vitol Group",
-        "headquarters": "Geneva, Switzerland",
-        "main_phone": "+41 22 322 8200",
-        "email_general": "info@vitol.com",
-        "website": "https://www.vitol.com",
-        "business_type": "Energy and metals trading",
-        "metals": ["copper", "aluminum", "zinc"],
-        "regions": ["Global"]
-    }
-}
-
-def get_company_contacts(company_name ):
-    """Get business contact information for trading companies"""
-    company_key = company_name.lower().replace(" ", "").replace("plc", "").replace("group", "").replace("ltd", "")
-    
-    if company_key in BUSINESS_CONTACTS:
-        return BUSINESS_CONTACTS[company_key]
-    
-    # If not in database, provide general guidance
-    return {
-        "guidance": f"For {company_name} contact details, I recommend:",
-        "methods": [
-            "Check their official website investor relations section",
-            "Contact their main switchboard for trading desk transfer",
-            "Look up their LinkedIn company page for direct contacts",
-            "Check commodity trading directories like Platts or Metal Bulletin"
-        ]
-    }
-
 def comprehensive_web_search(query, search_type="general"):
     """Perform comprehensive web search across multiple sources"""
     try:
@@ -179,50 +122,10 @@ def layla_chat():
         
         current_prices = get_accurate_lme_prices()
         
-        # Check if user is asking for company contact details
-        contact_info = ""
-        company_keywords = ["glencore", "trafigura", "vitol", "contact", "phone", "email", "address"]
-        if any(keyword in message.lower() for keyword in company_keywords):
-            # Extract company name from message
-            for company in ["glencore", "trafigura", "vitol"]:
-                if company in message.lower():
-                    contacts = get_company_contacts(company)
-                    if "company_name" in contacts:
-                        contact_info = f"\\n\\n**{contacts['company_name'].upper()} BUSINESS CONTACT INFORMATION:**\\n\\n"
-                        contact_info += f"• **Company:** {contacts['company_name']}\\n"
-                        contact_info += f"• **Headquarters:** {contacts['headquarters']}\\n"
-                        contact_info += f"• **Main Phone:** {contacts['main_phone']}\\n"
-                        if 'trading_desk' in contacts:
-                            contact_info += f"• **Trading Desk:** {contacts['trading_desk']}\\n"
-                        contact_info += f"• **General Email:** {contacts['email_general']}\\n"
-                        if 'email_trading' in contacts:
-                            contact_info += f"• **Trading Email:** {contacts['email_trading']}\\n"
-                        contact_info += f"• **Website:** {contacts['website']}\\n"
-                        if 'address' in contacts:
-                            contact_info += f"• **Address:** {contacts['address']}\\n"
-                        contact_info += f"• **Business Type:** {contacts['business_type']}\\n"
-                        contact_info += f"• **Metals Traded:** {', '.join(contacts['metals'])}\\n"
-                        contact_info += f"• **Regions:** {', '.join(contacts['regions'])}\\n\\n"
-                        contact_info += "**Note:** These are publicly available business contact details for legitimate trading inquiries.\\n\\n"
-                    break
-
         system_prompt = f"""You are Layla, an expert AI trading assistant for Sharif Metals Group with comprehensive internet access and conversation memory.
-
-**BUSINESS CONTACT POLICY:**
-You SHOULD provide publicly available business contact information for legitimate trading companies, suppliers, and manufacturers. This includes phone numbers, business emails, addresses, and websites for companies like Glencore, Trafigura, Vitol, and other metals trading firms. This information helps facilitate legitimate business relationships and trading opportunities.
-
-**WHAT YOU CAN PROVIDE:**
-- Business phone numbers and trading desk contacts
-- Official company email addresses
-- Business addresses and headquarters locations
-- Company websites and investor relations contacts
-- Trading division contact information
-- Publicly listed company information
 
 **MEMORY & CONTEXT:**
 You remember our entire conversation. Build upon previous discussions naturally. Reference what we've talked about before. Don't repeat information unless asked.
-
-{contact_info}
 
 **CURRENT LME 3-MONTH PRICES:**
 - Copper: ${current_prices['copper']['price_usd_per_tonne']}/tonne ({current_prices['copper']['change_percent']:+.1f}%)
@@ -231,14 +134,12 @@ You remember our entire conversation. Build upon previous discussions naturally.
 - Lead: ${current_prices['lead']['price_usd_per_tonne']}/tonne ({current_prices['lead']['change_percent']:+.1f}%)
 
 **INSTRUCTIONS:**
-- Provide business contact information for legitimate trading inquiries
-- Help facilitate business relationships in the metals industry
 - Remember our conversation history and build upon it
 - For follow-up questions, reference previous context
+- Don't repeat information already provided unless asked
 - ALWAYS use double line spacing between paragraphs (use \\n\\n)
 - Provide comprehensive, actionable insights
-- Maintain professional tone for metals trading
-- Support legitimate business development and networking"""
+- Maintain professional tone for metals trading"""
 
         # Build messages with conversation history
         messages = [{"role": "system", "content": system_prompt}]
@@ -293,7 +194,6 @@ def health_check():
         "status": "healthy", 
         "openai": HAS_OPENAI,
         "conversation_memory": "enabled",
-        "business_contacts": "enabled",
         "active_sessions": len(conversation_memory),
         "last_price_update": datetime.now().strftime("%Y-%m-%d %H:%M:%S UTC")
     })
